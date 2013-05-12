@@ -24,6 +24,11 @@
 #define _MYOVERLAY_
 
 #include "BaseOverlay.h"
+enum STAGE_TYPE
+{
+    INIT_STAGE = 1,
+    JOIN_STAGE = 2
+};
 
 class MyOverlay : public BaseOverlay
 {
@@ -41,8 +46,21 @@ private:
 
     // statistics
     int numDropped;          // how many packets have we dropped?
-
     // routine for RPC timer
+
+    /* bootstrapNode */
+    TransportAddress bootstrapNode;
+    int xKey;
+    int yKey;
+    int zKey;
+
+    NodeColor nodeColor;
+    STAGE_TYPE stage;
+
+    NodeHandle xNode;
+    NodeHandle yNode;
+    NodeHandle zNode;
+
     void handleTimerEvent(cMessage *msg);
 
     // overlay routines

@@ -70,17 +70,22 @@ void MyOverlay::setOwnNodeID()
 void MyOverlay::joinOverlay()
 {
     // Set the information of the previous step in the chain
+    /*
     prevNode.setIp(IPAddress(BIGBIT | (myKey - 1)));
     prevNode.setPort(thisNode.getPort());
     prevNode.setKey(OverlayKey(myKey - 1));
-
     // Set the information of the next step in the chain
     nextNode.setIp(IPAddress(BIGBIT | (myKey + 1)));
     nextNode.setPort(thisNode.getPort());
     nextNode.setKey(OverlayKey(myKey + 1));
+    */
 
+    //bootstrapNode = bootstrapList->getBootstrapNode();
 
+    /* this means is the first node from overlay */
+    if(bootstrapNode.isUnspecified()) {
 
+    }
     // tell the simulator that we're ready
     setOverlayReady(true);
 }
