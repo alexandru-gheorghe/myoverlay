@@ -23,6 +23,22 @@
 
 
 /**
+ * Enum generated from <tt>overlay/myoverlay/MyOverlay.msg</tt> by opp_msgc.
+ * <pre>
+ * enum MessageType {
+ * 	MSG_JOIN = 1;
+ * 	MSG_JOIN_ACCEPT = 2;
+ * 	MSG_JOIN_DECLINE = 3;
+ * }
+ * </pre>
+ */
+enum MessageType {
+    MSG_JOIN = 1,
+    MSG_JOIN_ACCEPT = 2,
+    MSG_JOIN_DECLINE = 3
+};
+
+/**
  * Class generated from <tt>overlay/myoverlay/MyOverlay.msg</tt> by opp_msgc.
  * <pre>
  * packet MyNeighborCall extends BaseCallMessage
@@ -65,8 +81,10 @@ inline void doUnpacking(cCommBuffer *b, MyNeighborCall& obj) {obj.parsimUnpack(b
  * Class generated from <tt>overlay/myoverlay/MyOverlay.msg</tt> by opp_msgc.
  * <pre>
  * packet P2PMessage extends BaseCallMessage {
- * 	int type;
+ * 	int type enum (MessageType);
  * 	TransportAddress senderAddress;
+ * 	OverlayKey senderKey;
+ * 	OverlayKey propKey;
  * };
  * </pre>
  */
@@ -75,6 +93,8 @@ class P2PMessage : public ::BaseCallMessage
   protected:
     int type_var;
     TransportAddress senderAddress_var;
+    OverlayKey senderKey_var;
+    OverlayKey propKey_var;
 
   private:
     void copy(const P2PMessage& other);
@@ -98,6 +118,12 @@ class P2PMessage : public ::BaseCallMessage
     virtual TransportAddress& getSenderAddress();
     virtual const TransportAddress& getSenderAddress() const {return const_cast<P2PMessage*>(this)->getSenderAddress();}
     virtual void setSenderAddress(const TransportAddress& senderAddress);
+    virtual OverlayKey& getSenderKey();
+    virtual const OverlayKey& getSenderKey() const {return const_cast<P2PMessage*>(this)->getSenderKey();}
+    virtual void setSenderKey(const OverlayKey& senderKey);
+    virtual OverlayKey& getPropKey();
+    virtual const OverlayKey& getPropKey() const {return const_cast<P2PMessage*>(this)->getPropKey();}
+    virtual void setPropKey(const OverlayKey& propKey);
 };
 
 inline void doPacking(cCommBuffer *b, P2PMessage& obj) {obj.parsimPack(b);}

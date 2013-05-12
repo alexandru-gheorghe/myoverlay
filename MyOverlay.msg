@@ -35,11 +35,18 @@ packet MyNeighborCall extends BaseCallMessage
 {
     OverlayKey destinationKey;
 };
-
+enum MessageType {
+	MSG_JOIN = 1;
+	MSG_JOIN_ACCEPT = 2;
+	MSG_JOIN_DECLINE = 3;
+}
 packet P2PMessage extends BaseCallMessage {
-	int type;
+	int type enum (MessageType);
 	TransportAddress senderAddress;
+	OverlayKey senderKey;
+	OverlayKey propKey;
 };
+
 packet MyNeighborResponse extends BaseResponseMessage
 {
     NodeHandle respondingNode;

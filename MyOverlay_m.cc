@@ -30,6 +30,14 @@ void doUnpacking(cCommBuffer *, T& t) {
 
 
 
+EXECUTE_ON_STARTUP(
+    cEnum *e = cEnum::find("MessageType");
+    if (!e) enums.getInstance()->add(e = new cEnum("MessageType"));
+    e->insert(MSG_JOIN, "MSG_JOIN");
+    e->insert(MSG_JOIN_ACCEPT, "MSG_JOIN_ACCEPT");
+    e->insert(MSG_JOIN_DECLINE, "MSG_JOIN_DECLINE");
+);
+
 Register_Class(MyNeighborCall);
 
 MyNeighborCall::MyNeighborCall(const char *name, int kind) : BaseCallMessage(name,kind)
@@ -293,6 +301,8 @@ void P2PMessage::copy(const P2PMessage& other)
 {
     this->type_var = other.type_var;
     this->senderAddress_var = other.senderAddress_var;
+    this->senderKey_var = other.senderKey_var;
+    this->propKey_var = other.propKey_var;
 }
 
 void P2PMessage::parsimPack(cCommBuffer *b)
@@ -300,6 +310,8 @@ void P2PMessage::parsimPack(cCommBuffer *b)
     BaseCallMessage::parsimPack(b);
     doPacking(b,this->type_var);
     doPacking(b,this->senderAddress_var);
+    doPacking(b,this->senderKey_var);
+    doPacking(b,this->propKey_var);
 }
 
 void P2PMessage::parsimUnpack(cCommBuffer *b)
@@ -307,6 +319,8 @@ void P2PMessage::parsimUnpack(cCommBuffer *b)
     BaseCallMessage::parsimUnpack(b);
     doUnpacking(b,this->type_var);
     doUnpacking(b,this->senderAddress_var);
+    doUnpacking(b,this->senderKey_var);
+    doUnpacking(b,this->propKey_var);
 }
 
 int P2PMessage::getType() const
@@ -327,6 +341,26 @@ TransportAddress& P2PMessage::getSenderAddress()
 void P2PMessage::setSenderAddress(const TransportAddress& senderAddress)
 {
     this->senderAddress_var = senderAddress;
+}
+
+OverlayKey& P2PMessage::getSenderKey()
+{
+    return senderKey_var;
+}
+
+void P2PMessage::setSenderKey(const OverlayKey& senderKey)
+{
+    this->senderKey_var = senderKey;
+}
+
+OverlayKey& P2PMessage::getPropKey()
+{
+    return propKey_var;
+}
+
+void P2PMessage::setPropKey(const OverlayKey& propKey)
+{
+    this->propKey_var = propKey;
 }
 
 class P2PMessageDescriptor : public cClassDescriptor
@@ -376,7 +410,7 @@ const char *P2PMessageDescriptor::getProperty(const char *propertyname) const
 int P2PMessageDescriptor::getFieldCount(void *object) const
 {
     cClassDescriptor *basedesc = getBaseClassDescriptor();
-    return basedesc ? 2+basedesc->getFieldCount(object) : 2;
+    return basedesc ? 4+basedesc->getFieldCount(object) : 4;
 }
 
 unsigned int P2PMessageDescriptor::getFieldTypeFlags(void *object, int field) const
@@ -390,8 +424,10 @@ unsigned int P2PMessageDescriptor::getFieldTypeFlags(void *object, int field) co
     static unsigned int fieldTypeFlags[] = {
         FD_ISEDITABLE,
         FD_ISCOMPOUND,
+        FD_ISCOMPOUND,
+        FD_ISCOMPOUND,
     };
-    return (field>=0 && field<2) ? fieldTypeFlags[field] : 0;
+    return (field>=0 && field<4) ? fieldTypeFlags[field] : 0;
 }
 
 const char *P2PMessageDescriptor::getFieldName(void *object, int field) const
@@ -405,8 +441,10 @@ const char *P2PMessageDescriptor::getFieldName(void *object, int field) const
     static const char *fieldNames[] = {
         "type",
         "senderAddress",
+        "senderKey",
+        "propKey",
     };
-    return (field>=0 && field<2) ? fieldNames[field] : NULL;
+    return (field>=0 && field<4) ? fieldNames[field] : NULL;
 }
 
 int P2PMessageDescriptor::findField(void *object, const char *fieldName) const
@@ -415,6 +453,8 @@ int P2PMessageDescriptor::findField(void *object, const char *fieldName) const
     int base = basedesc ? basedesc->getFieldCount(object) : 0;
     if (fieldName[0]=='t' && strcmp(fieldName, "type")==0) return base+0;
     if (fieldName[0]=='s' && strcmp(fieldName, "senderAddress")==0) return base+1;
+    if (fieldName[0]=='s' && strcmp(fieldName, "senderKey")==0) return base+2;
+    if (fieldName[0]=='p' && strcmp(fieldName, "propKey")==0) return base+3;
     return basedesc ? basedesc->findField(object, fieldName) : -1;
 }
 
@@ -429,8 +469,10 @@ const char *P2PMessageDescriptor::getFieldTypeString(void *object, int field) co
     static const char *fieldTypeStrings[] = {
         "int",
         "TransportAddress",
+        "OverlayKey",
+        "OverlayKey",
     };
-    return (field>=0 && field<2) ? fieldTypeStrings[field] : NULL;
+    return (field>=0 && field<4) ? fieldTypeStrings[field] : NULL;
 }
 
 const char *P2PMessageDescriptor::getFieldProperty(void *object, int field, const char *propertyname) const
@@ -442,6 +484,9 @@ const char *P2PMessageDescriptor::getFieldProperty(void *object, int field, cons
         field -= basedesc->getFieldCount(object);
     }
     switch (field) {
+        case 0:
+            if (!strcmp(propertyname,"enum")) return "MessageType";
+            return NULL;
         default: return NULL;
     }
 }
@@ -472,6 +517,8 @@ std::string P2PMessageDescriptor::getFieldAsString(void *object, int field, int 
     switch (field) {
         case 0: return long2string(pp->getType());
         case 1: {std::stringstream out; out << pp->getSenderAddress(); return out.str();}
+        case 2: {std::stringstream out; out << pp->getSenderKey(); return out.str();}
+        case 3: {std::stringstream out; out << pp->getPropKey(); return out.str();}
         default: return "";
     }
 }
@@ -502,8 +549,10 @@ const char *P2PMessageDescriptor::getFieldStructName(void *object, int field) co
     static const char *fieldStructNames[] = {
         NULL,
         "TransportAddress",
+        "OverlayKey",
+        "OverlayKey",
     };
-    return (field>=0 && field<2) ? fieldStructNames[field] : NULL;
+    return (field>=0 && field<4) ? fieldStructNames[field] : NULL;
 }
 
 void *P2PMessageDescriptor::getFieldStructPointer(void *object, int field, int i) const
@@ -517,6 +566,8 @@ void *P2PMessageDescriptor::getFieldStructPointer(void *object, int field, int i
     P2PMessage *pp = (P2PMessage *)object; (void)pp;
     switch (field) {
         case 1: return (void *)(&pp->getSenderAddress()); break;
+        case 2: return (void *)(&pp->getSenderKey()); break;
+        case 3: return (void *)(&pp->getPropKey()); break;
         default: return NULL;
     }
 }
