@@ -35,13 +35,22 @@ packet MyNeighborCall extends BaseCallMessage
 {
     OverlayKey destinationKey;
 };
-enum MessageType {
+
+enum MessageType 
+{
 	MSG_JOIN = 1;
 	MSG_JOIN_ACCEPT = 2;
 	MSG_JOIN_DECLINE = 3;
 }
-packet P2PMessage extends BaseCallMessage {
-	int type enum (MessageType);
+enum NodeColor 
+{
+	WHITE_NODE = 1;
+	BLACK_NODE = 2;
+}
+packet P2PMessage extends BaseCallMessage 
+{
+	int msgType enum (MessageType);
+	int nodeColor enum (NodeColor);
 	TransportAddress senderAddress;
 	OverlayKey senderKey;
 	OverlayKey propKey;

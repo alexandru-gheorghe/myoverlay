@@ -25,7 +25,8 @@
 /**
  * Enum generated from <tt>overlay/myoverlay/MyOverlay.msg</tt> by opp_msgc.
  * <pre>
- * enum MessageType {
+ * enum MessageType 
+ * {
  * 	MSG_JOIN = 1;
  * 	MSG_JOIN_ACCEPT = 2;
  * 	MSG_JOIN_DECLINE = 3;
@@ -36,6 +37,21 @@ enum MessageType {
     MSG_JOIN = 1,
     MSG_JOIN_ACCEPT = 2,
     MSG_JOIN_DECLINE = 3
+};
+
+/**
+ * Enum generated from <tt>overlay/myoverlay/MyOverlay.msg</tt> by opp_msgc.
+ * <pre>
+ * enum NodeColor 
+ * {
+ * 	WHITE_NODE = 1;
+ * 	BLACK_NODE = 2;
+ * }
+ * </pre>
+ */
+enum NodeColor {
+    WHITE_NODE = 1,
+    BLACK_NODE = 2
 };
 
 /**
@@ -80,8 +96,10 @@ inline void doUnpacking(cCommBuffer *b, MyNeighborCall& obj) {obj.parsimUnpack(b
 /**
  * Class generated from <tt>overlay/myoverlay/MyOverlay.msg</tt> by opp_msgc.
  * <pre>
- * packet P2PMessage extends BaseCallMessage {
- * 	int type enum (MessageType);
+ * packet P2PMessage extends BaseCallMessage 
+ * {
+ * 	int msgType enum (MessageType);
+ * 	int nodeColor enum (NodeColor);
  * 	TransportAddress senderAddress;
  * 	OverlayKey senderKey;
  * 	OverlayKey propKey;
@@ -91,7 +109,8 @@ inline void doUnpacking(cCommBuffer *b, MyNeighborCall& obj) {obj.parsimUnpack(b
 class P2PMessage : public ::BaseCallMessage
 {
   protected:
-    int type_var;
+    int msgType_var;
+    int nodeColor_var;
     TransportAddress senderAddress_var;
     OverlayKey senderKey_var;
     OverlayKey propKey_var;
@@ -113,8 +132,10 @@ class P2PMessage : public ::BaseCallMessage
     virtual void parsimUnpack(cCommBuffer *b);
 
     // field getter/setter methods
-    virtual int getType() const;
-    virtual void setType(int type);
+    virtual int getMsgType() const;
+    virtual void setMsgType(int msgType);
+    virtual int getNodeColor() const;
+    virtual void setNodeColor(int nodeColor);
     virtual TransportAddress& getSenderAddress();
     virtual const TransportAddress& getSenderAddress() const {return const_cast<P2PMessage*>(this)->getSenderAddress();}
     virtual void setSenderAddress(const TransportAddress& senderAddress);
