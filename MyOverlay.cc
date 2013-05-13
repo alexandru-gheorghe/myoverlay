@@ -26,6 +26,7 @@
 #include <UnderlayConfigurator.h>
 #include <GlobalStatistics.h>
 #include <BootstrapList.h>
+#include <GlobalNodeList.h>
 #include "MyOverlay_m.h"
 
 #include "MyOverlay.h"
@@ -56,6 +57,10 @@ void MyOverlay::initializeOverlay(int stage)
     }
     OverlayKey unspKey;
     thisNode.setKey(unspKey);
+
+    xNode = NodeHandle::UNSPECIFIED_NODE;
+    yNode = NodeHandle::UNSPECIFIED_NODE;
+    zNode = NodeHandle::UNSPECIFIED_NODE;
 
     rpcTimer = new cMessage("RPC timer");
     scheduleAt(simTime() + 5, rpcTimer);
@@ -138,6 +143,7 @@ void MyOverlay::sendJoinMessage() {
                                   thisNode.getNatType());
     msg->setSenderAddress(nodeAddress);
     msg->setSenderKey(thisNode.getKey());
+    sendRouteRpcCall(OVERLAY_COMP, bootstrapNode, msg);
 }
 void MyOverlay::handleTimerEvent(cMessage *msg)
 {
@@ -258,19 +264,11 @@ bool MyOverlay::handleRpcCall(BaseCallMessage *msg)
     RPC_SWITCH_START(msg);
 
     // enters the following block if the message is of type MyNeighborCall (note the shortened parameter!)
-    RPC_ON_CALL(MyNeighbor) {
+    RPC_ON_CALL(P2PMessage) {
         // get Call message
-        MyNeighborCall *mrpc = (MyNeighborCall*)msg;
-
-        // create response
-        MyNeighborResponse *rrpc = new MyNeighborResponse();
-        rrpc->setRespondingNode(thisNode);
-        rrpc->setPrevNeighbor(prevNode);
-        rrpc->setNextNeighbor(nextNode);
-
-        // now send the response. sendRpcResponse can automatically tell where
-        // to send it to. Note that sendRpcResponse will delete mrpc (aka msg)!
-        sendRpcResponse(mrpc, rrpc);
+        P2PMessageCall *p2pmc = (P2PMessageCall*)msg;
+        P2PMessageResponse *p2pmr = createJoinResponse(p2pmc);
+        sendRpcResponse(p2pmc, p2pmr);
 
         RPC_HANDLED = true;  // set to true, since we did handle this RPC (default is false)
     }
@@ -285,7 +283,75 @@ bool MyOverlay::handleRpcCall(BaseCallMessage *msg)
 
 // Called when an RPC we sent has timed out.
 // Don't delete msg here!
+P2PMessageResponse* MyOverlay::createJoinResponse(P2PMessageCall *p2pmc) {
+    P2PMessageResponse *p2pmr = new P2PMessageResponse();
+    p2pmr->setMsgType(MSG_JOIN_ACCEPT);
+    if(nodeColor == BLACK_NODE)
+        p2pmr->setNodeColor(WHITE_NODE);
+    else if (nodeColor == WHITE_NODE)
+            p2pmr->setNodeColor(BLACK_NODE);
+         else   p2pmr->setNodeColor(UNKNOWN_COLOR);
 
+    TransportAddress senderAddr(thisNode.getIp(),
+                                thisNode.getPort(),
+                                thisNode.getNatType());
+    p2pmr->setSenderAddress(senderAddr);
+    p2pmr->setSenderKey(thisNode.getKey());
+    int x;
+    int y;
+    int z;
+    if(getAvailableKey(x, y, z) != KEY_ERROR)
+        p2pmr->setPropKey(generateKey(x, y, z));
+    else
+        p2pmr->setPropKey(OverlayKey::UNSPECIFIED_KEY);
+    return p2pmr;
+}
+
+int MyOverlay::getAvailableKey(int &x, int &y, int &z) {
+    if(nodeColor == UNKNOWN_COLOR)
+        return KEY_ERROR;
+    if(nodeColor == BLACK_NODE) {
+        if(xKey < numRing && xNode.isUnspecified()) {
+            x = xKey + 1;
+            y = yKey;
+            z = zKey;
+            return X_KEY;
+        }
+        if(yKey < numRing && yNode.isUnspecified()) {
+            x = xKey;
+            y = yKey + 1;
+            z = zKey;
+            return Y_KEY;
+        }
+        if(zKey < numRing && zNode.isUnspecified()) {
+            x = xKey;
+            y = yKey;
+            z = zKey + 1;
+            return Z_KEY;
+        }
+    }
+    if(nodeColor == WHITE_NODE) {
+        if(xKey > -numRing + 1 && xNode.isUnspecified()) {
+            x = xKey - 1;
+            y = yKey;
+            z = zKey;
+            return X_KEY;
+        }
+        if(yKey > -numRing + 1 && yNode.isUnspecified()) {
+            x = xKey;
+            y = yKey - 1;
+            z = zKey;
+            return Y_KEY;
+        }
+        if(zKey > -numRing + 1 && yNode.isUnspecified()) {
+            x = xKey;
+            y = yKey;
+            z = zKey -1;
+            return Z_KEY;
+        }
+    }
+    return KEY_ERROR;
+}
 void MyOverlay::handleRpcTimeout(BaseCallMessage* msg,
                          const TransportAddress& dest,
                          cPolymorphic* context, int rpcId,
@@ -319,13 +385,14 @@ void MyOverlay::handleRpcResponse(BaseResponseMessage* msg,
     RPC_SWITCH_START(msg);
 
     // enters the following block if the message is of type MyNeighborCall (note the shortened parameter!)
-    RPC_ON_RESPONSE(MyNeighbor) {
+    RPC_ON_RESPONSE(P2PMessage) {
         // get Response message
-        MyNeighborResponse *mrpc = (MyNeighborResponse*)msg;
+        P2PMessageResponse *p2pmr = (P2PMessageResponse*)msg;
         // call our interface function
-        callbackNeighbors(mrpc->getRespondingNode(),
-                          mrpc->getPrevNeighbor(),
-                          mrpc->getNextNeighbor());
+        if( !p2pmr->getPropKey().isUnspecified() ) {
+            parseKey(p2pmr->getPropKey(), xKey, yKey, zKey);
+            setOwnNodeID();
+        }
     }
     // end the switch
     RPC_SWITCH_END();
