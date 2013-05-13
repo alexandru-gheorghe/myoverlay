@@ -1,4 +1,3 @@
-//
 // Copyright (C) 2009 Institut fuer Telematik, Universitaet Karlsruhe (TH)
 //
 // This program is free software; you can redistribute it and/or
@@ -21,10 +20,12 @@
  */
 
 #include <iostream>
+#include <stdlib.h>
+#include <vector>
 
 #include <UnderlayConfigurator.h>
 #include <GlobalStatistics.h>
-
+#include <BootstrapList.h>
 #include "MyOverlay_m.h"
 
 #include "MyOverlay.h"
@@ -53,6 +54,8 @@ void MyOverlay::initializeOverlay(int stage)
     } else {
         dropChance = par("dropChance");
     }
+    OverlayKey unspKey;
+    thisNode.setKey(unspKey);
 
     rpcTimer = new cMessage("RPC timer");
     scheduleAt(simTime() + 5, rpcTimer);
@@ -62,7 +65,14 @@ void MyOverlay::initializeOverlay(int stage)
 void MyOverlay::setOwnNodeID()
 {
     // create the corresponding overlay key
-    thisNode.setKey(OverlayKey(myKey));
+    char *buffer;
+    buffer = (char *)malloc(KEY_LENGTH * sizeof(char));
+    memcpy(buffer, &xKey, sizeof(int));
+    memcpy(buffer + sizeof(int), &yKey, sizeof(int));
+    memcpy(buffer + 2 * sizeof(int), &zKey, sizeof(int));
+
+    thisNode.setKey(OverlayKey(buffer, KEY_LENGTH));
+
 }
 
 
@@ -80,16 +90,39 @@ void MyOverlay::joinOverlay()
     nextNode.setKey(OverlayKey(myKey + 1));
     */
 
-    //bootstrapNode = bootstrapList->getBootstrapNode();
+    bootstrapNode = this->bootstrapList->getBootstrapNode(this->overlayId);
 
     /* this means is the first node from overlay */
     if(bootstrapNode.isUnspecified()) {
-
+        addFirstNode();
+    } else {
+        sendJoinMessage();
     }
     // tell the simulator that we're ready
     setOverlayReady(true);
 }
 
+void MyOverlay::addFirstNode() {
+    // first node in the network has the key = (1, 0, 0)
+    // and it is a black node;
+    xKey = X_UNIT;
+    yKey = 0;
+    zKey = 0;
+    nodeColor = BLACK_NODE;
+    setOwnNodeID();
+}
+
+void MyOverlay::sendJoinMessage() {
+    P2PMessage *msg = new P2PMessage();
+    msg->setMsgType(MSG_JOIN);
+    msg->setNodeColor(UNKNOWN_COLOR);
+
+    TransportAddress nodeAddress( thisNode.getIp(),
+                                  thisNode.getPort(),
+                                  thisNode.getNatType());
+    msg->setSenderAddress(nodeAddress);
+    msg->setSenderKey(thisNode.getKey());
+}
 void MyOverlay::handleTimerEvent(cMessage *msg)
 {
     if (msg == rpcTimer) {
