@@ -46,12 +46,14 @@ enum MessageType {
  * {
  * 	WHITE_NODE = 1;
  * 	BLACK_NODE = 2;
+ * 	UNKNOWN_COLOR = 3;
  * }
  * </pre>
  */
 enum NodeColor {
     WHITE_NODE = 1,
-    BLACK_NODE = 2
+    BLACK_NODE = 2,
+    UNKNOWN_COLOR = 3
 };
 
 /**
@@ -96,7 +98,7 @@ inline void doUnpacking(cCommBuffer *b, MyNeighborCall& obj) {obj.parsimUnpack(b
 /**
  * Class generated from <tt>overlay/myoverlay/MyOverlay.msg</tt> by opp_msgc.
  * <pre>
- * packet P2PMessage extends BaseCallMessage 
+ * packet P2PMessageCall extends BaseCallMessage 
  * {
  * 	int msgType enum (MessageType);
  * 	int nodeColor enum (NodeColor);
@@ -106,7 +108,7 @@ inline void doUnpacking(cCommBuffer *b, MyNeighborCall& obj) {obj.parsimUnpack(b
  * };
  * </pre>
  */
-class P2PMessage : public ::BaseCallMessage
+class P2PMessageCall : public ::BaseCallMessage
 {
   protected:
     int msgType_var;
@@ -116,18 +118,18 @@ class P2PMessage : public ::BaseCallMessage
     OverlayKey propKey_var;
 
   private:
-    void copy(const P2PMessage& other);
+    void copy(const P2PMessageCall& other);
 
   protected:
     // protected and unimplemented operator==(), to prevent accidental usage
-    bool operator==(const P2PMessage&);
+    bool operator==(const P2PMessageCall&);
 
   public:
-    P2PMessage(const char *name=NULL, int kind=0);
-    P2PMessage(const P2PMessage& other);
-    virtual ~P2PMessage();
-    P2PMessage& operator=(const P2PMessage& other);
-    virtual P2PMessage *dup() const {return new P2PMessage(*this);}
+    P2PMessageCall(const char *name=NULL, int kind=0);
+    P2PMessageCall(const P2PMessageCall& other);
+    virtual ~P2PMessageCall();
+    P2PMessageCall& operator=(const P2PMessageCall& other);
+    virtual P2PMessageCall *dup() const {return new P2PMessageCall(*this);}
     virtual void parsimPack(cCommBuffer *b);
     virtual void parsimUnpack(cCommBuffer *b);
 
@@ -137,18 +139,75 @@ class P2PMessage : public ::BaseCallMessage
     virtual int getNodeColor() const;
     virtual void setNodeColor(int nodeColor);
     virtual TransportAddress& getSenderAddress();
-    virtual const TransportAddress& getSenderAddress() const {return const_cast<P2PMessage*>(this)->getSenderAddress();}
+    virtual const TransportAddress& getSenderAddress() const {return const_cast<P2PMessageCall*>(this)->getSenderAddress();}
     virtual void setSenderAddress(const TransportAddress& senderAddress);
     virtual OverlayKey& getSenderKey();
-    virtual const OverlayKey& getSenderKey() const {return const_cast<P2PMessage*>(this)->getSenderKey();}
+    virtual const OverlayKey& getSenderKey() const {return const_cast<P2PMessageCall*>(this)->getSenderKey();}
     virtual void setSenderKey(const OverlayKey& senderKey);
     virtual OverlayKey& getPropKey();
-    virtual const OverlayKey& getPropKey() const {return const_cast<P2PMessage*>(this)->getPropKey();}
+    virtual const OverlayKey& getPropKey() const {return const_cast<P2PMessageCall*>(this)->getPropKey();}
     virtual void setPropKey(const OverlayKey& propKey);
 };
 
-inline void doPacking(cCommBuffer *b, P2PMessage& obj) {obj.parsimPack(b);}
-inline void doUnpacking(cCommBuffer *b, P2PMessage& obj) {obj.parsimUnpack(b);}
+inline void doPacking(cCommBuffer *b, P2PMessageCall& obj) {obj.parsimPack(b);}
+inline void doUnpacking(cCommBuffer *b, P2PMessageCall& obj) {obj.parsimUnpack(b);}
+
+/**
+ * Class generated from <tt>overlay/myoverlay/MyOverlay.msg</tt> by opp_msgc.
+ * <pre>
+ * packet P2PMessageResponse extends BaseResponseMessage 
+ * {
+ * 	int msgType enum (MessageType);
+ * 	int nodeColor enum (NodeColor);
+ * 	TransportAddress senderAddress;
+ * 	OverlayKey senderKey;
+ * 	OverlayKey propKey;
+ * };
+ * </pre>
+ */
+class P2PMessageResponse : public ::BaseResponseMessage
+{
+  protected:
+    int msgType_var;
+    int nodeColor_var;
+    TransportAddress senderAddress_var;
+    OverlayKey senderKey_var;
+    OverlayKey propKey_var;
+
+  private:
+    void copy(const P2PMessageResponse& other);
+
+  protected:
+    // protected and unimplemented operator==(), to prevent accidental usage
+    bool operator==(const P2PMessageResponse&);
+
+  public:
+    P2PMessageResponse(const char *name=NULL, int kind=0);
+    P2PMessageResponse(const P2PMessageResponse& other);
+    virtual ~P2PMessageResponse();
+    P2PMessageResponse& operator=(const P2PMessageResponse& other);
+    virtual P2PMessageResponse *dup() const {return new P2PMessageResponse(*this);}
+    virtual void parsimPack(cCommBuffer *b);
+    virtual void parsimUnpack(cCommBuffer *b);
+
+    // field getter/setter methods
+    virtual int getMsgType() const;
+    virtual void setMsgType(int msgType);
+    virtual int getNodeColor() const;
+    virtual void setNodeColor(int nodeColor);
+    virtual TransportAddress& getSenderAddress();
+    virtual const TransportAddress& getSenderAddress() const {return const_cast<P2PMessageResponse*>(this)->getSenderAddress();}
+    virtual void setSenderAddress(const TransportAddress& senderAddress);
+    virtual OverlayKey& getSenderKey();
+    virtual const OverlayKey& getSenderKey() const {return const_cast<P2PMessageResponse*>(this)->getSenderKey();}
+    virtual void setSenderKey(const OverlayKey& senderKey);
+    virtual OverlayKey& getPropKey();
+    virtual const OverlayKey& getPropKey() const {return const_cast<P2PMessageResponse*>(this)->getPropKey();}
+    virtual void setPropKey(const OverlayKey& propKey);
+};
+
+inline void doPacking(cCommBuffer *b, P2PMessageResponse& obj) {obj.parsimPack(b);}
+inline void doUnpacking(cCommBuffer *b, P2PMessageResponse& obj) {obj.parsimUnpack(b);}
 
 /**
  * Class generated from <tt>overlay/myoverlay/MyOverlay.msg</tt> by opp_msgc.

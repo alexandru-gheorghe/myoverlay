@@ -30,6 +30,13 @@ enum STAGE_TYPE
     JOIN_STAGE = 2
 };
 
+#define X_UNIT 1
+#define Y_UNIT 1
+#define Z_UNIT 1
+#define KEY_LENGTH 3 * sizeof(int)
+
+#define KEY_ERROR   1;
+#define KEY_SUCCESS 2;
 class MyOverlay : public BaseOverlay
 {
 private:
@@ -49,7 +56,7 @@ private:
     // routine for RPC timer
 
     /* bootstrapNode */
-    TransportAddress bootstrapNode;
+    NodeHandle bootstrapNode;
     int xKey;
     int yKey;
     int zKey;
@@ -69,6 +76,10 @@ private:
     void joinOverlay();                                     // called when the node is ready to join the overlay
     void finishOverlay();                                   // called when the module is about to be destroyed
 
+    void addFirstNode();
+    void sendJoinMessage();
+    OverlayKey generateKey(int x, int y, int z);
+    int parseKey(OverlayKey key, int &x, int &y, int &z);
     // obligatory: called when we need the next hop to route a packet to the given key
     NodeVector* findNode(const OverlayKey& key,             // key to route to
                                  int numRedundantNodes,     // how many candidates for next hop we want (see getMaxNumSiblings)

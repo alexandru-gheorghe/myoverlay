@@ -43,6 +43,7 @@ EXECUTE_ON_STARTUP(
     if (!e) enums.getInstance()->add(e = new cEnum("NodeColor"));
     e->insert(WHITE_NODE, "WHITE_NODE");
     e->insert(BLACK_NODE, "BLACK_NODE");
+    e->insert(UNKNOWN_COLOR, "UNKNOWN_COLOR");
 );
 
 Register_Class(MyNeighborCall);
@@ -280,24 +281,24 @@ void *MyNeighborCallDescriptor::getFieldStructPointer(void *object, int field, i
     }
 }
 
-Register_Class(P2PMessage);
+Register_Class(P2PMessageCall);
 
-P2PMessage::P2PMessage(const char *name, int kind) : BaseCallMessage(name,kind)
+P2PMessageCall::P2PMessageCall(const char *name, int kind) : BaseCallMessage(name,kind)
 {
     this->msgType_var = 0;
     this->nodeColor_var = 0;
 }
 
-P2PMessage::P2PMessage(const P2PMessage& other) : BaseCallMessage(other)
+P2PMessageCall::P2PMessageCall(const P2PMessageCall& other) : BaseCallMessage(other)
 {
     copy(other);
 }
 
-P2PMessage::~P2PMessage()
+P2PMessageCall::~P2PMessageCall()
 {
 }
 
-P2PMessage& P2PMessage::operator=(const P2PMessage& other)
+P2PMessageCall& P2PMessageCall::operator=(const P2PMessageCall& other)
 {
     if (this==&other) return *this;
     BaseCallMessage::operator=(other);
@@ -305,7 +306,7 @@ P2PMessage& P2PMessage::operator=(const P2PMessage& other)
     return *this;
 }
 
-void P2PMessage::copy(const P2PMessage& other)
+void P2PMessageCall::copy(const P2PMessageCall& other)
 {
     this->msgType_var = other.msgType_var;
     this->nodeColor_var = other.nodeColor_var;
@@ -314,7 +315,7 @@ void P2PMessage::copy(const P2PMessage& other)
     this->propKey_var = other.propKey_var;
 }
 
-void P2PMessage::parsimPack(cCommBuffer *b)
+void P2PMessageCall::parsimPack(cCommBuffer *b)
 {
     BaseCallMessage::parsimPack(b);
     doPacking(b,this->msgType_var);
@@ -324,7 +325,7 @@ void P2PMessage::parsimPack(cCommBuffer *b)
     doPacking(b,this->propKey_var);
 }
 
-void P2PMessage::parsimUnpack(cCommBuffer *b)
+void P2PMessageCall::parsimUnpack(cCommBuffer *b)
 {
     BaseCallMessage::parsimUnpack(b);
     doUnpacking(b,this->msgType_var);
@@ -334,61 +335,61 @@ void P2PMessage::parsimUnpack(cCommBuffer *b)
     doUnpacking(b,this->propKey_var);
 }
 
-int P2PMessage::getMsgType() const
+int P2PMessageCall::getMsgType() const
 {
     return msgType_var;
 }
 
-void P2PMessage::setMsgType(int msgType)
+void P2PMessageCall::setMsgType(int msgType)
 {
     this->msgType_var = msgType;
 }
 
-int P2PMessage::getNodeColor() const
+int P2PMessageCall::getNodeColor() const
 {
     return nodeColor_var;
 }
 
-void P2PMessage::setNodeColor(int nodeColor)
+void P2PMessageCall::setNodeColor(int nodeColor)
 {
     this->nodeColor_var = nodeColor;
 }
 
-TransportAddress& P2PMessage::getSenderAddress()
+TransportAddress& P2PMessageCall::getSenderAddress()
 {
     return senderAddress_var;
 }
 
-void P2PMessage::setSenderAddress(const TransportAddress& senderAddress)
+void P2PMessageCall::setSenderAddress(const TransportAddress& senderAddress)
 {
     this->senderAddress_var = senderAddress;
 }
 
-OverlayKey& P2PMessage::getSenderKey()
+OverlayKey& P2PMessageCall::getSenderKey()
 {
     return senderKey_var;
 }
 
-void P2PMessage::setSenderKey(const OverlayKey& senderKey)
+void P2PMessageCall::setSenderKey(const OverlayKey& senderKey)
 {
     this->senderKey_var = senderKey;
 }
 
-OverlayKey& P2PMessage::getPropKey()
+OverlayKey& P2PMessageCall::getPropKey()
 {
     return propKey_var;
 }
 
-void P2PMessage::setPropKey(const OverlayKey& propKey)
+void P2PMessageCall::setPropKey(const OverlayKey& propKey)
 {
     this->propKey_var = propKey;
 }
 
-class P2PMessageDescriptor : public cClassDescriptor
+class P2PMessageCallDescriptor : public cClassDescriptor
 {
   public:
-    P2PMessageDescriptor();
-    virtual ~P2PMessageDescriptor();
+    P2PMessageCallDescriptor();
+    virtual ~P2PMessageCallDescriptor();
 
     virtual bool doesSupport(cObject *obj) const;
     virtual const char *getProperty(const char *propertyname) const;
@@ -407,34 +408,34 @@ class P2PMessageDescriptor : public cClassDescriptor
     virtual void *getFieldStructPointer(void *object, int field, int i) const;
 };
 
-Register_ClassDescriptor(P2PMessageDescriptor);
+Register_ClassDescriptor(P2PMessageCallDescriptor);
 
-P2PMessageDescriptor::P2PMessageDescriptor() : cClassDescriptor("P2PMessage", "BaseCallMessage")
+P2PMessageCallDescriptor::P2PMessageCallDescriptor() : cClassDescriptor("P2PMessageCall", "BaseCallMessage")
 {
 }
 
-P2PMessageDescriptor::~P2PMessageDescriptor()
+P2PMessageCallDescriptor::~P2PMessageCallDescriptor()
 {
 }
 
-bool P2PMessageDescriptor::doesSupport(cObject *obj) const
+bool P2PMessageCallDescriptor::doesSupport(cObject *obj) const
 {
-    return dynamic_cast<P2PMessage *>(obj)!=NULL;
+    return dynamic_cast<P2PMessageCall *>(obj)!=NULL;
 }
 
-const char *P2PMessageDescriptor::getProperty(const char *propertyname) const
+const char *P2PMessageCallDescriptor::getProperty(const char *propertyname) const
 {
     cClassDescriptor *basedesc = getBaseClassDescriptor();
     return basedesc ? basedesc->getProperty(propertyname) : NULL;
 }
 
-int P2PMessageDescriptor::getFieldCount(void *object) const
+int P2PMessageCallDescriptor::getFieldCount(void *object) const
 {
     cClassDescriptor *basedesc = getBaseClassDescriptor();
     return basedesc ? 5+basedesc->getFieldCount(object) : 5;
 }
 
-unsigned int P2PMessageDescriptor::getFieldTypeFlags(void *object, int field) const
+unsigned int P2PMessageCallDescriptor::getFieldTypeFlags(void *object, int field) const
 {
     cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -452,7 +453,7 @@ unsigned int P2PMessageDescriptor::getFieldTypeFlags(void *object, int field) co
     return (field>=0 && field<5) ? fieldTypeFlags[field] : 0;
 }
 
-const char *P2PMessageDescriptor::getFieldName(void *object, int field) const
+const char *P2PMessageCallDescriptor::getFieldName(void *object, int field) const
 {
     cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -470,7 +471,7 @@ const char *P2PMessageDescriptor::getFieldName(void *object, int field) const
     return (field>=0 && field<5) ? fieldNames[field] : NULL;
 }
 
-int P2PMessageDescriptor::findField(void *object, const char *fieldName) const
+int P2PMessageCallDescriptor::findField(void *object, const char *fieldName) const
 {
     cClassDescriptor *basedesc = getBaseClassDescriptor();
     int base = basedesc ? basedesc->getFieldCount(object) : 0;
@@ -482,7 +483,7 @@ int P2PMessageDescriptor::findField(void *object, const char *fieldName) const
     return basedesc ? basedesc->findField(object, fieldName) : -1;
 }
 
-const char *P2PMessageDescriptor::getFieldTypeString(void *object, int field) const
+const char *P2PMessageCallDescriptor::getFieldTypeString(void *object, int field) const
 {
     cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -500,7 +501,7 @@ const char *P2PMessageDescriptor::getFieldTypeString(void *object, int field) co
     return (field>=0 && field<5) ? fieldTypeStrings[field] : NULL;
 }
 
-const char *P2PMessageDescriptor::getFieldProperty(void *object, int field, const char *propertyname) const
+const char *P2PMessageCallDescriptor::getFieldProperty(void *object, int field, const char *propertyname) const
 {
     cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -519,7 +520,7 @@ const char *P2PMessageDescriptor::getFieldProperty(void *object, int field, cons
     }
 }
 
-int P2PMessageDescriptor::getArraySize(void *object, int field) const
+int P2PMessageCallDescriptor::getArraySize(void *object, int field) const
 {
     cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -527,13 +528,13 @@ int P2PMessageDescriptor::getArraySize(void *object, int field) const
             return basedesc->getArraySize(object, field);
         field -= basedesc->getFieldCount(object);
     }
-    P2PMessage *pp = (P2PMessage *)object; (void)pp;
+    P2PMessageCall *pp = (P2PMessageCall *)object; (void)pp;
     switch (field) {
         default: return 0;
     }
 }
 
-std::string P2PMessageDescriptor::getFieldAsString(void *object, int field, int i) const
+std::string P2PMessageCallDescriptor::getFieldAsString(void *object, int field, int i) const
 {
     cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -541,7 +542,7 @@ std::string P2PMessageDescriptor::getFieldAsString(void *object, int field, int 
             return basedesc->getFieldAsString(object,field,i);
         field -= basedesc->getFieldCount(object);
     }
-    P2PMessage *pp = (P2PMessage *)object; (void)pp;
+    P2PMessageCall *pp = (P2PMessageCall *)object; (void)pp;
     switch (field) {
         case 0: return long2string(pp->getMsgType());
         case 1: return long2string(pp->getNodeColor());
@@ -552,7 +553,7 @@ std::string P2PMessageDescriptor::getFieldAsString(void *object, int field, int 
     }
 }
 
-bool P2PMessageDescriptor::setFieldAsString(void *object, int field, int i, const char *value) const
+bool P2PMessageCallDescriptor::setFieldAsString(void *object, int field, int i, const char *value) const
 {
     cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -560,7 +561,7 @@ bool P2PMessageDescriptor::setFieldAsString(void *object, int field, int i, cons
             return basedesc->setFieldAsString(object,field,i,value);
         field -= basedesc->getFieldCount(object);
     }
-    P2PMessage *pp = (P2PMessage *)object; (void)pp;
+    P2PMessageCall *pp = (P2PMessageCall *)object; (void)pp;
     switch (field) {
         case 0: pp->setMsgType(string2long(value)); return true;
         case 1: pp->setNodeColor(string2long(value)); return true;
@@ -568,7 +569,7 @@ bool P2PMessageDescriptor::setFieldAsString(void *object, int field, int i, cons
     }
 }
 
-const char *P2PMessageDescriptor::getFieldStructName(void *object, int field) const
+const char *P2PMessageCallDescriptor::getFieldStructName(void *object, int field) const
 {
     cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -586,7 +587,7 @@ const char *P2PMessageDescriptor::getFieldStructName(void *object, int field) co
     return (field>=0 && field<5) ? fieldStructNames[field] : NULL;
 }
 
-void *P2PMessageDescriptor::getFieldStructPointer(void *object, int field, int i) const
+void *P2PMessageCallDescriptor::getFieldStructPointer(void *object, int field, int i) const
 {
     cClassDescriptor *basedesc = getBaseClassDescriptor();
     if (basedesc) {
@@ -594,7 +595,330 @@ void *P2PMessageDescriptor::getFieldStructPointer(void *object, int field, int i
             return basedesc->getFieldStructPointer(object, field, i);
         field -= basedesc->getFieldCount(object);
     }
-    P2PMessage *pp = (P2PMessage *)object; (void)pp;
+    P2PMessageCall *pp = (P2PMessageCall *)object; (void)pp;
+    switch (field) {
+        case 2: return (void *)(&pp->getSenderAddress()); break;
+        case 3: return (void *)(&pp->getSenderKey()); break;
+        case 4: return (void *)(&pp->getPropKey()); break;
+        default: return NULL;
+    }
+}
+
+Register_Class(P2PMessageResponse);
+
+P2PMessageResponse::P2PMessageResponse(const char *name, int kind) : BaseResponseMessage(name,kind)
+{
+    this->msgType_var = 0;
+    this->nodeColor_var = 0;
+}
+
+P2PMessageResponse::P2PMessageResponse(const P2PMessageResponse& other) : BaseResponseMessage(other)
+{
+    copy(other);
+}
+
+P2PMessageResponse::~P2PMessageResponse()
+{
+}
+
+P2PMessageResponse& P2PMessageResponse::operator=(const P2PMessageResponse& other)
+{
+    if (this==&other) return *this;
+    BaseResponseMessage::operator=(other);
+    copy(other);
+    return *this;
+}
+
+void P2PMessageResponse::copy(const P2PMessageResponse& other)
+{
+    this->msgType_var = other.msgType_var;
+    this->nodeColor_var = other.nodeColor_var;
+    this->senderAddress_var = other.senderAddress_var;
+    this->senderKey_var = other.senderKey_var;
+    this->propKey_var = other.propKey_var;
+}
+
+void P2PMessageResponse::parsimPack(cCommBuffer *b)
+{
+    BaseResponseMessage::parsimPack(b);
+    doPacking(b,this->msgType_var);
+    doPacking(b,this->nodeColor_var);
+    doPacking(b,this->senderAddress_var);
+    doPacking(b,this->senderKey_var);
+    doPacking(b,this->propKey_var);
+}
+
+void P2PMessageResponse::parsimUnpack(cCommBuffer *b)
+{
+    BaseResponseMessage::parsimUnpack(b);
+    doUnpacking(b,this->msgType_var);
+    doUnpacking(b,this->nodeColor_var);
+    doUnpacking(b,this->senderAddress_var);
+    doUnpacking(b,this->senderKey_var);
+    doUnpacking(b,this->propKey_var);
+}
+
+int P2PMessageResponse::getMsgType() const
+{
+    return msgType_var;
+}
+
+void P2PMessageResponse::setMsgType(int msgType)
+{
+    this->msgType_var = msgType;
+}
+
+int P2PMessageResponse::getNodeColor() const
+{
+    return nodeColor_var;
+}
+
+void P2PMessageResponse::setNodeColor(int nodeColor)
+{
+    this->nodeColor_var = nodeColor;
+}
+
+TransportAddress& P2PMessageResponse::getSenderAddress()
+{
+    return senderAddress_var;
+}
+
+void P2PMessageResponse::setSenderAddress(const TransportAddress& senderAddress)
+{
+    this->senderAddress_var = senderAddress;
+}
+
+OverlayKey& P2PMessageResponse::getSenderKey()
+{
+    return senderKey_var;
+}
+
+void P2PMessageResponse::setSenderKey(const OverlayKey& senderKey)
+{
+    this->senderKey_var = senderKey;
+}
+
+OverlayKey& P2PMessageResponse::getPropKey()
+{
+    return propKey_var;
+}
+
+void P2PMessageResponse::setPropKey(const OverlayKey& propKey)
+{
+    this->propKey_var = propKey;
+}
+
+class P2PMessageResponseDescriptor : public cClassDescriptor
+{
+  public:
+    P2PMessageResponseDescriptor();
+    virtual ~P2PMessageResponseDescriptor();
+
+    virtual bool doesSupport(cObject *obj) const;
+    virtual const char *getProperty(const char *propertyname) const;
+    virtual int getFieldCount(void *object) const;
+    virtual const char *getFieldName(void *object, int field) const;
+    virtual int findField(void *object, const char *fieldName) const;
+    virtual unsigned int getFieldTypeFlags(void *object, int field) const;
+    virtual const char *getFieldTypeString(void *object, int field) const;
+    virtual const char *getFieldProperty(void *object, int field, const char *propertyname) const;
+    virtual int getArraySize(void *object, int field) const;
+
+    virtual std::string getFieldAsString(void *object, int field, int i) const;
+    virtual bool setFieldAsString(void *object, int field, int i, const char *value) const;
+
+    virtual const char *getFieldStructName(void *object, int field) const;
+    virtual void *getFieldStructPointer(void *object, int field, int i) const;
+};
+
+Register_ClassDescriptor(P2PMessageResponseDescriptor);
+
+P2PMessageResponseDescriptor::P2PMessageResponseDescriptor() : cClassDescriptor("P2PMessageResponse", "BaseResponseMessage")
+{
+}
+
+P2PMessageResponseDescriptor::~P2PMessageResponseDescriptor()
+{
+}
+
+bool P2PMessageResponseDescriptor::doesSupport(cObject *obj) const
+{
+    return dynamic_cast<P2PMessageResponse *>(obj)!=NULL;
+}
+
+const char *P2PMessageResponseDescriptor::getProperty(const char *propertyname) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    return basedesc ? basedesc->getProperty(propertyname) : NULL;
+}
+
+int P2PMessageResponseDescriptor::getFieldCount(void *object) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    return basedesc ? 5+basedesc->getFieldCount(object) : 5;
+}
+
+unsigned int P2PMessageResponseDescriptor::getFieldTypeFlags(void *object, int field) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount(object))
+            return basedesc->getFieldTypeFlags(object, field);
+        field -= basedesc->getFieldCount(object);
+    }
+    static unsigned int fieldTypeFlags[] = {
+        FD_ISEDITABLE,
+        FD_ISEDITABLE,
+        FD_ISCOMPOUND,
+        FD_ISCOMPOUND,
+        FD_ISCOMPOUND,
+    };
+    return (field>=0 && field<5) ? fieldTypeFlags[field] : 0;
+}
+
+const char *P2PMessageResponseDescriptor::getFieldName(void *object, int field) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount(object))
+            return basedesc->getFieldName(object, field);
+        field -= basedesc->getFieldCount(object);
+    }
+    static const char *fieldNames[] = {
+        "msgType",
+        "nodeColor",
+        "senderAddress",
+        "senderKey",
+        "propKey",
+    };
+    return (field>=0 && field<5) ? fieldNames[field] : NULL;
+}
+
+int P2PMessageResponseDescriptor::findField(void *object, const char *fieldName) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    int base = basedesc ? basedesc->getFieldCount(object) : 0;
+    if (fieldName[0]=='m' && strcmp(fieldName, "msgType")==0) return base+0;
+    if (fieldName[0]=='n' && strcmp(fieldName, "nodeColor")==0) return base+1;
+    if (fieldName[0]=='s' && strcmp(fieldName, "senderAddress")==0) return base+2;
+    if (fieldName[0]=='s' && strcmp(fieldName, "senderKey")==0) return base+3;
+    if (fieldName[0]=='p' && strcmp(fieldName, "propKey")==0) return base+4;
+    return basedesc ? basedesc->findField(object, fieldName) : -1;
+}
+
+const char *P2PMessageResponseDescriptor::getFieldTypeString(void *object, int field) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount(object))
+            return basedesc->getFieldTypeString(object, field);
+        field -= basedesc->getFieldCount(object);
+    }
+    static const char *fieldTypeStrings[] = {
+        "int",
+        "int",
+        "TransportAddress",
+        "OverlayKey",
+        "OverlayKey",
+    };
+    return (field>=0 && field<5) ? fieldTypeStrings[field] : NULL;
+}
+
+const char *P2PMessageResponseDescriptor::getFieldProperty(void *object, int field, const char *propertyname) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount(object))
+            return basedesc->getFieldProperty(object, field, propertyname);
+        field -= basedesc->getFieldCount(object);
+    }
+    switch (field) {
+        case 0:
+            if (!strcmp(propertyname,"enum")) return "MessageType";
+            return NULL;
+        case 1:
+            if (!strcmp(propertyname,"enum")) return "NodeColor";
+            return NULL;
+        default: return NULL;
+    }
+}
+
+int P2PMessageResponseDescriptor::getArraySize(void *object, int field) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount(object))
+            return basedesc->getArraySize(object, field);
+        field -= basedesc->getFieldCount(object);
+    }
+    P2PMessageResponse *pp = (P2PMessageResponse *)object; (void)pp;
+    switch (field) {
+        default: return 0;
+    }
+}
+
+std::string P2PMessageResponseDescriptor::getFieldAsString(void *object, int field, int i) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount(object))
+            return basedesc->getFieldAsString(object,field,i);
+        field -= basedesc->getFieldCount(object);
+    }
+    P2PMessageResponse *pp = (P2PMessageResponse *)object; (void)pp;
+    switch (field) {
+        case 0: return long2string(pp->getMsgType());
+        case 1: return long2string(pp->getNodeColor());
+        case 2: {std::stringstream out; out << pp->getSenderAddress(); return out.str();}
+        case 3: {std::stringstream out; out << pp->getSenderKey(); return out.str();}
+        case 4: {std::stringstream out; out << pp->getPropKey(); return out.str();}
+        default: return "";
+    }
+}
+
+bool P2PMessageResponseDescriptor::setFieldAsString(void *object, int field, int i, const char *value) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount(object))
+            return basedesc->setFieldAsString(object,field,i,value);
+        field -= basedesc->getFieldCount(object);
+    }
+    P2PMessageResponse *pp = (P2PMessageResponse *)object; (void)pp;
+    switch (field) {
+        case 0: pp->setMsgType(string2long(value)); return true;
+        case 1: pp->setNodeColor(string2long(value)); return true;
+        default: return false;
+    }
+}
+
+const char *P2PMessageResponseDescriptor::getFieldStructName(void *object, int field) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount(object))
+            return basedesc->getFieldStructName(object, field);
+        field -= basedesc->getFieldCount(object);
+    }
+    static const char *fieldStructNames[] = {
+        NULL,
+        NULL,
+        "TransportAddress",
+        "OverlayKey",
+        "OverlayKey",
+    };
+    return (field>=0 && field<5) ? fieldStructNames[field] : NULL;
+}
+
+void *P2PMessageResponseDescriptor::getFieldStructPointer(void *object, int field, int i) const
+{
+    cClassDescriptor *basedesc = getBaseClassDescriptor();
+    if (basedesc) {
+        if (field < basedesc->getFieldCount(object))
+            return basedesc->getFieldStructPointer(object, field, i);
+        field -= basedesc->getFieldCount(object);
+    }
+    P2PMessageResponse *pp = (P2PMessageResponse *)object; (void)pp;
     switch (field) {
         case 2: return (void *)(&pp->getSenderAddress()); break;
         case 3: return (void *)(&pp->getSenderKey()); break;

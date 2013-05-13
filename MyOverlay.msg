@@ -46,8 +46,10 @@ enum NodeColor
 {
 	WHITE_NODE = 1;
 	BLACK_NODE = 2;
+	UNKNOWN_COLOR = 3;
 }
-packet P2PMessage extends BaseCallMessage 
+
+packet P2PMessageCall extends BaseCallMessage 
 {
 	int msgType enum (MessageType);
 	int nodeColor enum (NodeColor);
@@ -56,6 +58,14 @@ packet P2PMessage extends BaseCallMessage
 	OverlayKey propKey;
 };
 
+packet P2PMessageResponse extends BaseResponseMessage 
+{
+	int msgType enum (MessageType);
+	int nodeColor enum (NodeColor);
+	TransportAddress senderAddress;
+	OverlayKey senderKey;
+	OverlayKey propKey;
+};
 packet MyNeighborResponse extends BaseResponseMessage
 {
     NodeHandle respondingNode;

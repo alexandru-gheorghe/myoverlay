@@ -65,16 +65,32 @@ void MyOverlay::initializeOverlay(int stage)
 void MyOverlay::setOwnNodeID()
 {
     // create the corresponding overlay key
-    char *buffer;
-    buffer = (char *)malloc(KEY_LENGTH * sizeof(char));
-    memcpy(buffer, &xKey, sizeof(int));
-    memcpy(buffer + sizeof(int), &yKey, sizeof(int));
-    memcpy(buffer + 2 * sizeof(int), &zKey, sizeof(int));
 
-    thisNode.setKey(OverlayKey(buffer, KEY_LENGTH));
+    thisNode.setKey(generateKey(xKey, yKey, zKey));
 
 }
 
+OverlayKey MyOverlay::generateKey(int xKey, int yKey, int zKey) {
+    if(xKey == 0 && yKey == 0 && zKey == 0)
+        return OverlayKey::UNSPECIFIED_KEY;
+    unsigned char *buffer;
+    buffer = (unsigned char *)malloc(KEY_LENGTH * sizeof(char));
+    memcpy(buffer, &xKey, sizeof(int));
+    memcpy(buffer + sizeof(int), &yKey, sizeof(int));
+    memcpy(buffer + 2 * sizeof(int), &zKey, sizeof(int));
+    return OverlayKey(buffer, KEY_LENGTH);
+
+}
+
+int MyOverlay::parseKey(OverlayKey key, int &x, int &y, int &z) {
+    if(key.isUnspecified())
+        return KEY_ERROR;
+    x = key.getBitRange(0, sizeof(int));
+    y = key.getBitRange(sizeof(int), sizeof(int));
+    z = key.getBitRange(2 * sizeof(int), sizeof(int));
+
+    return KEY_SUCCESS;
+}
 
 // Called when the module is ready to join the overlay
 void MyOverlay::joinOverlay()
@@ -90,7 +106,7 @@ void MyOverlay::joinOverlay()
     nextNode.setKey(OverlayKey(myKey + 1));
     */
 
-    bootstrapNode = this->bootstrapList->getBootstrapNode(this->overlayId);
+    bootstrapNode = this->globalNodeList->getBootstrapNode(this->overlayId, NodeHandle::UNSPECIFIED_NODE);
 
     /* this means is the first node from overlay */
     if(bootstrapNode.isUnspecified()) {
@@ -113,7 +129,7 @@ void MyOverlay::addFirstNode() {
 }
 
 void MyOverlay::sendJoinMessage() {
-    P2PMessage *msg = new P2PMessage();
+    P2PMessageCall *msg = new P2PMessageCall();
     msg->setMsgType(MSG_JOIN);
     msg->setNodeColor(UNKNOWN_COLOR);
 
