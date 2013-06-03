@@ -61,6 +61,7 @@ void MyOverlay::initializeOverlay(int stage)
     xNode = NodeHandle::UNSPECIFIED_NODE;
     yNode = NodeHandle::UNSPECIFIED_NODE;
     zNode = NodeHandle::UNSPECIFIED_NODE;
+    numRing = 1;
 
     rpcTimer = new cMessage("RPC timer");
     scheduleAt(simTime() + 5, rpcTimer);
@@ -144,6 +145,7 @@ void MyOverlay::sendJoinMessage() {
     msg->setSenderAddress(nodeAddress);
     msg->setSenderKey(thisNode.getKey());
     sendRouteRpcCall(OVERLAY_COMP, bootstrapNode, msg);
+
 }
 void MyOverlay::handleTimerEvent(cMessage *msg)
 {
@@ -300,10 +302,17 @@ P2PMessageResponse* MyOverlay::createJoinResponse(P2PMessageCall *p2pmc) {
     int x;
     int y;
     int z;
-    if(getAvailableKey(x, y, z) != KEY_ERROR)
+    if(getAvailableKey(x, y, z) != KEY_ERROR) {
         p2pmr->setPropKey(generateKey(x, y, z));
-    else
+        p2pmr->setPropX(x);
+        p2pmr->setPropY(y);
+        p2pmr->setPropZ(z);
+    } else {
         p2pmr->setPropKey(OverlayKey::UNSPECIFIED_KEY);
+        p2pmr->setPropX(0);
+        p2pmr->setPropY(0);
+        p2pmr->setPropZ(0);
+    }
     return p2pmr;
 }
 
@@ -352,6 +361,8 @@ int MyOverlay::getAvailableKey(int &x, int &y, int &z) {
     }
     return KEY_ERROR;
 }
+
+
 void MyOverlay::handleRpcTimeout(BaseCallMessage* msg,
                          const TransportAddress& dest,
                          cPolymorphic* context, int rpcId,
@@ -391,6 +402,9 @@ void MyOverlay::handleRpcResponse(BaseResponseMessage* msg,
         // call our interface function
         if( !p2pmr->getPropKey().isUnspecified() ) {
             parseKey(p2pmr->getPropKey(), xKey, yKey, zKey);
+            xKey = p2pmr->getPropX();
+            yKey = p2pmr->getPropY();
+            zKey = p2pmr->getPropZ();
             setOwnNodeID();
         }
     }

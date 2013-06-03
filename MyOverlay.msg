@@ -39,8 +39,14 @@ packet MyNeighborCall extends BaseCallMessage
 enum MessageType 
 {
 	MSG_JOIN = 1;
-	MSG_JOIN_ACCEPT = 2;
+	MSG_JOIN_ACCEPT  = 2;
 	MSG_JOIN_DECLINE = 3;
+	MSG_KEY_RESERVED = 4;
+	MSG_KEY_RESERVED_ACK = 5;
+	MSG_KEY_RESERVED_DECLINE = 6;
+	MSG_UNKNOWN_HOST = 7;
+	MSG_FIND_AVAI_KEY = 8;
+	MSG_AVAI_KEY = 9;
 }
 enum NodeColor 
 {
@@ -56,6 +62,9 @@ packet P2PMessageCall extends BaseCallMessage
 	TransportAddress senderAddress;
 	OverlayKey senderKey;
 	OverlayKey propKey;
+	int propX;
+	int propY;
+	int propZ;
 };
 
 packet P2PMessageResponse extends BaseResponseMessage 
@@ -65,6 +74,9 @@ packet P2PMessageResponse extends BaseResponseMessage
 	TransportAddress senderAddress;
 	OverlayKey senderKey;
 	OverlayKey propKey;
+	int propX;
+	int propY;
+	int propZ;
 };
 packet MyNeighborResponse extends BaseResponseMessage
 {

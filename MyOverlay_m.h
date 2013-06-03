@@ -105,6 +105,9 @@ inline void doUnpacking(cCommBuffer *b, MyNeighborCall& obj) {obj.parsimUnpack(b
  * 	TransportAddress senderAddress;
  * 	OverlayKey senderKey;
  * 	OverlayKey propKey;
+ * 	int propX;
+ * 	int propY;
+ * 	int propZ;
  * };
  * </pre>
  */
@@ -116,6 +119,9 @@ class P2PMessageCall : public ::BaseCallMessage
     TransportAddress senderAddress_var;
     OverlayKey senderKey_var;
     OverlayKey propKey_var;
+    int propX_var;
+    int propY_var;
+    int propZ_var;
 
   private:
     void copy(const P2PMessageCall& other);
@@ -147,6 +153,12 @@ class P2PMessageCall : public ::BaseCallMessage
     virtual OverlayKey& getPropKey();
     virtual const OverlayKey& getPropKey() const {return const_cast<P2PMessageCall*>(this)->getPropKey();}
     virtual void setPropKey(const OverlayKey& propKey);
+    virtual int getPropX() const;
+    virtual void setPropX(int propX);
+    virtual int getPropY() const;
+    virtual void setPropY(int propY);
+    virtual int getPropZ() const;
+    virtual void setPropZ(int propZ);
 };
 
 inline void doPacking(cCommBuffer *b, P2PMessageCall& obj) {obj.parsimPack(b);}
@@ -162,6 +174,9 @@ inline void doUnpacking(cCommBuffer *b, P2PMessageCall& obj) {obj.parsimUnpack(b
  * 	TransportAddress senderAddress;
  * 	OverlayKey senderKey;
  * 	OverlayKey propKey;
+ * 	int propX;
+ * 	int propY;
+ * 	int propZ;
  * };
  * </pre>
  */
@@ -173,6 +188,9 @@ class P2PMessageResponse : public ::BaseResponseMessage
     TransportAddress senderAddress_var;
     OverlayKey senderKey_var;
     OverlayKey propKey_var;
+    int propX_var;
+    int propY_var;
+    int propZ_var;
 
   private:
     void copy(const P2PMessageResponse& other);
@@ -204,6 +222,12 @@ class P2PMessageResponse : public ::BaseResponseMessage
     virtual OverlayKey& getPropKey();
     virtual const OverlayKey& getPropKey() const {return const_cast<P2PMessageResponse*>(this)->getPropKey();}
     virtual void setPropKey(const OverlayKey& propKey);
+    virtual int getPropX() const;
+    virtual void setPropX(int propX);
+    virtual int getPropY() const;
+    virtual void setPropY(int propY);
+    virtual int getPropZ() const;
+    virtual void setPropZ(int propZ);
 };
 
 inline void doPacking(cCommBuffer *b, P2PMessageResponse& obj) {obj.parsimPack(b);}
