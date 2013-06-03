@@ -42,6 +42,8 @@ enum STAGE_TYPE
 #define Z_KEY   4
 #define Y_KEY   5
 
+#define POZ     1
+#define NEG     -1
 class MyOverlay : public BaseOverlay
 {
 private:
@@ -81,16 +83,16 @@ private:
     void joinOverlay();                                     // called when the node is ready to join the overlay
     void finishOverlay();                                   // called when the module is about to be destroyed
 
-
+    /* my functions */
     void addFirstNode();
     void sendJoinMessage();
     OverlayKey generateKey(int x, int y, int z);
     int parseKey(OverlayKey key, int &x, int &y, int &z);
     P2PMessageResponse* createJoinResponse(P2PMessageCall *p2pmc);
     int getAvailableKey(int &x, int &y, int &z);
-    std::vector<NodeHandle> getSameChainNeighbour();
-    NodeHandle getNextChainNeighbour();
-
+    std::vector<NodeHandle> getSameChainNeighbours();
+    NodeHandle getDiffChainNeighbour();
+    int sign(int x);
     // obligatory: called when we need the next hop to route a packet to the given key
     NodeVector* findNode(const OverlayKey& key,             // key to route to
                                  int numRedundantNodes,     // how many candidates for next hop we want (see getMaxNumSiblings)

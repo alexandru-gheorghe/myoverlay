@@ -27,6 +27,7 @@
 #include <GlobalStatistics.h>
 #include <BootstrapList.h>
 #include <GlobalNodeList.h>
+#include <vector>
 #include "MyOverlay_m.h"
 
 #include "MyOverlay.h"
@@ -362,7 +363,40 @@ int MyOverlay::getAvailableKey(int &x, int &y, int &z) {
     return KEY_ERROR;
 }
 
+std::vector<NodeHandle> MyOverlay::getSameChainNeighbours() {
+    std::vector<NodeHandle> nodes;
+    if(sign(xKey) == sign(yKey)) {
+        nodes.push_back(xNode);
+        nodes.push_back(yNode);
+    }
+    if(sign(xKey) == sign(zKey)) {
+        nodes.push_back(xNode);
+        nodes.push_back(zNode);
+    }
+    if(sign(yKey) == sign(zKey)) {
+        nodes.push_back(yNode);
+        nodes.push_back(zNode);
+    }
+    return nodes;
+}
 
+NodeHandle MyOverlay::getDiffChainNeighbour() {
+    if(sign(xKey) == sign(yKey)) {
+        return zNode;
+    }
+    if(sign(xKey) == sign(zKey)) {
+        return yNode;
+    }
+    if(sign(yKey) == sign(zKey)) {
+        return xNode;
+    }
+    return NodeHandle::UNSPECIFIED_NODE;
+}
+
+int sign(int x) {
+    if(x > 0)   return POZ;
+    return NEG;
+}
 void MyOverlay::handleRpcTimeout(BaseCallMessage* msg,
                          const TransportAddress& dest,
                          cPolymorphic* context, int rpcId,
