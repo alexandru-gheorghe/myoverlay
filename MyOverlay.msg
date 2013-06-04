@@ -47,6 +47,7 @@ enum MessageType
 	MSG_UNKNOWN_HOST = 7;
 	MSG_FIND_AVAI_KEY = 8;
 	MSG_AVAI_KEY = 9;
+	MSG_NEXT_CHAIN = 10;
 }
 enum NodeColor 
 {

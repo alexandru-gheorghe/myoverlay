@@ -28,15 +28,29 @@
  * enum MessageType 
  * {
  * 	MSG_JOIN = 1;
- * 	MSG_JOIN_ACCEPT = 2;
+ * 	MSG_JOIN_ACCEPT  = 2;
  * 	MSG_JOIN_DECLINE = 3;
+ * 	MSG_KEY_RESERVED = 4;
+ * 	MSG_KEY_RESERVED_ACK = 5;
+ * 	MSG_KEY_RESERVED_DECLINE = 6;
+ * 	MSG_UNKNOWN_HOST = 7;
+ * 	MSG_FIND_AVAI_KEY = 8;
+ * 	MSG_AVAI_KEY = 9;
+ * 	MSG_NEXT_CHAIN = 10;
  * }
  * </pre>
  */
 enum MessageType {
     MSG_JOIN = 1,
     MSG_JOIN_ACCEPT = 2,
-    MSG_JOIN_DECLINE = 3
+    MSG_JOIN_DECLINE = 3,
+    MSG_KEY_RESERVED = 4,
+    MSG_KEY_RESERVED_ACK = 5,
+    MSG_KEY_RESERVED_DECLINE = 6,
+    MSG_UNKNOWN_HOST = 7,
+    MSG_FIND_AVAI_KEY = 8,
+    MSG_AVAI_KEY = 9,
+    MSG_NEXT_CHAIN = 10
 };
 
 /**

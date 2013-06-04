@@ -393,7 +393,7 @@ NodeHandle MyOverlay::getDiffChainNeighbour() {
     return NodeHandle::UNSPECIFIED_NODE;
 }
 
-int sign(int x) {
+int MyOverlay::sign(int x) {
     if(x > 0)   return POZ;
     return NEG;
 }

@@ -24,6 +24,7 @@
 #define _MYOVERLAY_
 
 #include "BaseOverlay.h"
+#include "MyOverlay_m.h"
 #include <vector>
 enum STAGE_TYPE
 {
