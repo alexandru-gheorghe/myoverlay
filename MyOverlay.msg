@@ -23,10 +23,12 @@ cplusplus {{
 #include <OverlayKey.h>
 #include <CommonMessages_m.h>
 #include <TransportAddress.h>
+#include "HoneyCombKey.h"
 }}
 class noncobject NodeHandle;
 class noncobject OverlayKey;
 class noncobject TransportAddress;
+class noncobject HoneyCombKey;
 
 class BaseCallMessage;
 class BaseResponseMessage;
@@ -59,13 +61,14 @@ enum NodeColor
 packet P2PMessageCall extends BaseCallMessage 
 {
 	int msgType enum (MessageType);
+	int rspTo	 enum (MessageType);
 	int nodeColor enum (NodeColor);
 	TransportAddress senderAddress;
-	OverlayKey senderKey;
-	OverlayKey propKey;
-	int propX;
-	int propY;
-	int propZ;
+	HoneyCombKey senderKey;
+	HoneyCombKey destKey;
+	HoneyCombKey bootstrapKey;
+	HoneyCombKey propKey;
+	int numRing;
 };
 
 packet P2PMessageResponse extends BaseResponseMessage 

@@ -18,6 +18,7 @@
 #include <OverlayKey.h>
 #include <CommonMessages_m.h>
 #include <TransportAddress.h>
+#include "HoneyCombKey.h"
 // }}
 
 
@@ -115,13 +116,14 @@ inline void doUnpacking(cCommBuffer *b, MyNeighborCall& obj) {obj.parsimUnpack(b
  * packet P2PMessageCall extends BaseCallMessage 
  * {
  * 	int msgType enum (MessageType);
+ * 	int rspTo	 enum (MessageType);
  * 	int nodeColor enum (NodeColor);
  * 	TransportAddress senderAddress;
- * 	OverlayKey senderKey;
- * 	OverlayKey propKey;
- * 	int propX;
- * 	int propY;
- * 	int propZ;
+ * 	HoneyCombKey senderKey;
+ * 	HoneyCombKey destKey;
+ * 	HoneyCombKey bootstrapKey;
+ * 	HoneyCombKey propKey;
+ * 	int numRing;
  * };
  * </pre>
  */
@@ -129,13 +131,14 @@ class P2PMessageCall : public ::BaseCallMessage
 {
   protected:
     int msgType_var;
+    int rspTo_var;
     int nodeColor_var;
     TransportAddress senderAddress_var;
-    OverlayKey senderKey_var;
-    OverlayKey propKey_var;
-    int propX_var;
-    int propY_var;
-    int propZ_var;
+    HoneyCombKey senderKey_var;
+    HoneyCombKey destKey_var;
+    HoneyCombKey bootstrapKey_var;
+    HoneyCombKey propKey_var;
+    int numRing_var;
 
   private:
     void copy(const P2PMessageCall& other);
@@ -156,23 +159,27 @@ class P2PMessageCall : public ::BaseCallMessage
     // field getter/setter methods
     virtual int getMsgType() const;
     virtual void setMsgType(int msgType);
+    virtual int getRspTo() const;
+    virtual void setRspTo(int rspTo);
     virtual int getNodeColor() const;
     virtual void setNodeColor(int nodeColor);
     virtual TransportAddress& getSenderAddress();
     virtual const TransportAddress& getSenderAddress() const {return const_cast<P2PMessageCall*>(this)->getSenderAddress();}
     virtual void setSenderAddress(const TransportAddress& senderAddress);
-    virtual OverlayKey& getSenderKey();
-    virtual const OverlayKey& getSenderKey() const {return const_cast<P2PMessageCall*>(this)->getSenderKey();}
-    virtual void setSenderKey(const OverlayKey& senderKey);
-    virtual OverlayKey& getPropKey();
-    virtual const OverlayKey& getPropKey() const {return const_cast<P2PMessageCall*>(this)->getPropKey();}
-    virtual void setPropKey(const OverlayKey& propKey);
-    virtual int getPropX() const;
-    virtual void setPropX(int propX);
-    virtual int getPropY() const;
-    virtual void setPropY(int propY);
-    virtual int getPropZ() const;
-    virtual void setPropZ(int propZ);
+    virtual HoneyCombKey& getSenderKey();
+    virtual const HoneyCombKey& getSenderKey() const {return const_cast<P2PMessageCall*>(this)->getSenderKey();}
+    virtual void setSenderKey(const HoneyCombKey& senderKey);
+    virtual HoneyCombKey& getDestKey();
+    virtual const HoneyCombKey& getDestKey() const {return const_cast<P2PMessageCall*>(this)->getDestKey();}
+    virtual void setDestKey(const HoneyCombKey& destKey);
+    virtual HoneyCombKey& getBootstrapKey();
+    virtual const HoneyCombKey& getBootstrapKey() const {return const_cast<P2PMessageCall*>(this)->getBootstrapKey();}
+    virtual void setBootstrapKey(const HoneyCombKey& bootstrapKey);
+    virtual HoneyCombKey& getPropKey();
+    virtual const HoneyCombKey& getPropKey() const {return const_cast<P2PMessageCall*>(this)->getPropKey();}
+    virtual void setPropKey(const HoneyCombKey& propKey);
+    virtual int getNumRing() const;
+    virtual void setNumRing(int numRing);
 };
 
 inline void doPacking(cCommBuffer *b, P2PMessageCall& obj) {obj.parsimPack(b);}

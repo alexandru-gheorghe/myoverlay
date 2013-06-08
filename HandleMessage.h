@@ -9,22 +9,28 @@
 #include "MyOverlay_m.h"
 #ifndef HANDLEMESSAGE_H_
 #define HANDLEMESSAGE_H_
+
 enum STAGE_TYPES {
     STAGE_JOINING,
     STAGE_WAIT_MESSAGE,
     STAGE_WAIT_KEY_RESERVED_RPY,
     STAGE_WAIT_FIND_KEY_RPY
-
 };
-namespace oversim {
-
 class HandleMessage {
 private:
     MyOverlay *node;
-    std::queue<P2PMessageCall> msgQueue;
-    int stage;
+    std::queue<P2PMessageCall *> msgQueue;
+    STAGE_TYPES stage;
+    HoneyCombKey reservedKey;
+    P2PMessageCall *currJoinMessage;
 public:
     HandleMessage(MyOverlay *node);
+
+    void addKeyReservedAck();
+    void addKeyReservedDecline();
+    bool allNeighResponded();
+    bool allNeighRespondedAck();
+
     void handleMessageCall(P2PMessageCall *msgCall);
     void handleJoin(P2PMessageCall *msgCall);
     void handleJoinAccept(P2PMessageCall *msgCall);
@@ -37,8 +43,17 @@ public:
     void handleAvaiKey(P2PMessageCall *msgCall);
     void handleNextChain(P2PMessageCall *msgCall);
     void handleMessageResponse(P2PMessageResponse *msgResponse);
+
+    void sendKeyReserved(int xKey, int yKey, int zKey);
+    void sendKeyReservedDecline(P2PMessageCall *msgCall);
+    void sendKeyReservedAccept(P2PMessageCall *msgCall);
+    void sendJoinDecline(OverlayInfo *neigh);
+    void sendJoinAccept();
+    void sendFindAvaiKey(OverlayInfo *neigh);
+    void sendJoin(OverlayKey key);
+    void sendDiscoverNeighbours();
+    void routeMsg(P2PMessageCall *msgCall);
     virtual ~HandleMessage();
 };
 
-} /* namespace oversim */
 #endif /* HANDLEMESSAGE_H_ */

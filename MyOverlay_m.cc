@@ -293,10 +293,9 @@ Register_Class(P2PMessageCall);
 P2PMessageCall::P2PMessageCall(const char *name, int kind) : BaseCallMessage(name,kind)
 {
     this->msgType_var = 0;
+    this->rspTo_var = 0;
     this->nodeColor_var = 0;
-    this->propX_var = 0;
-    this->propY_var = 0;
-    this->propZ_var = 0;
+    this->numRing_var = 0;
 }
 
 P2PMessageCall::P2PMessageCall(const P2PMessageCall& other) : BaseCallMessage(other)
@@ -319,39 +318,42 @@ P2PMessageCall& P2PMessageCall::operator=(const P2PMessageCall& other)
 void P2PMessageCall::copy(const P2PMessageCall& other)
 {
     this->msgType_var = other.msgType_var;
+    this->rspTo_var = other.rspTo_var;
     this->nodeColor_var = other.nodeColor_var;
     this->senderAddress_var = other.senderAddress_var;
     this->senderKey_var = other.senderKey_var;
+    this->destKey_var = other.destKey_var;
+    this->bootstrapKey_var = other.bootstrapKey_var;
     this->propKey_var = other.propKey_var;
-    this->propX_var = other.propX_var;
-    this->propY_var = other.propY_var;
-    this->propZ_var = other.propZ_var;
+    this->numRing_var = other.numRing_var;
 }
 
 void P2PMessageCall::parsimPack(cCommBuffer *b)
 {
     BaseCallMessage::parsimPack(b);
     doPacking(b,this->msgType_var);
+    doPacking(b,this->rspTo_var);
     doPacking(b,this->nodeColor_var);
     doPacking(b,this->senderAddress_var);
     doPacking(b,this->senderKey_var);
+    doPacking(b,this->destKey_var);
+    doPacking(b,this->bootstrapKey_var);
     doPacking(b,this->propKey_var);
-    doPacking(b,this->propX_var);
-    doPacking(b,this->propY_var);
-    doPacking(b,this->propZ_var);
+    doPacking(b,this->numRing_var);
 }
 
 void P2PMessageCall::parsimUnpack(cCommBuffer *b)
 {
     BaseCallMessage::parsimUnpack(b);
     doUnpacking(b,this->msgType_var);
+    doUnpacking(b,this->rspTo_var);
     doUnpacking(b,this->nodeColor_var);
     doUnpacking(b,this->senderAddress_var);
     doUnpacking(b,this->senderKey_var);
+    doUnpacking(b,this->destKey_var);
+    doUnpacking(b,this->bootstrapKey_var);
     doUnpacking(b,this->propKey_var);
-    doUnpacking(b,this->propX_var);
-    doUnpacking(b,this->propY_var);
-    doUnpacking(b,this->propZ_var);
+    doUnpacking(b,this->numRing_var);
 }
 
 int P2PMessageCall::getMsgType() const
@@ -362,6 +364,16 @@ int P2PMessageCall::getMsgType() const
 void P2PMessageCall::setMsgType(int msgType)
 {
     this->msgType_var = msgType;
+}
+
+int P2PMessageCall::getRspTo() const
+{
+    return rspTo_var;
+}
+
+void P2PMessageCall::setRspTo(int rspTo)
+{
+    this->rspTo_var = rspTo;
 }
 
 int P2PMessageCall::getNodeColor() const
@@ -384,54 +396,54 @@ void P2PMessageCall::setSenderAddress(const TransportAddress& senderAddress)
     this->senderAddress_var = senderAddress;
 }
 
-OverlayKey& P2PMessageCall::getSenderKey()
+HoneyCombKey& P2PMessageCall::getSenderKey()
 {
     return senderKey_var;
 }
 
-void P2PMessageCall::setSenderKey(const OverlayKey& senderKey)
+void P2PMessageCall::setSenderKey(const HoneyCombKey& senderKey)
 {
     this->senderKey_var = senderKey;
 }
 
-OverlayKey& P2PMessageCall::getPropKey()
+HoneyCombKey& P2PMessageCall::getDestKey()
+{
+    return destKey_var;
+}
+
+void P2PMessageCall::setDestKey(const HoneyCombKey& destKey)
+{
+    this->destKey_var = destKey;
+}
+
+HoneyCombKey& P2PMessageCall::getBootstrapKey()
+{
+    return bootstrapKey_var;
+}
+
+void P2PMessageCall::setBootstrapKey(const HoneyCombKey& bootstrapKey)
+{
+    this->bootstrapKey_var = bootstrapKey;
+}
+
+HoneyCombKey& P2PMessageCall::getPropKey()
 {
     return propKey_var;
 }
 
-void P2PMessageCall::setPropKey(const OverlayKey& propKey)
+void P2PMessageCall::setPropKey(const HoneyCombKey& propKey)
 {
     this->propKey_var = propKey;
 }
 
-int P2PMessageCall::getPropX() const
+int P2PMessageCall::getNumRing() const
 {
-    return propX_var;
+    return numRing_var;
 }
 
-void P2PMessageCall::setPropX(int propX)
+void P2PMessageCall::setNumRing(int numRing)
 {
-    this->propX_var = propX;
-}
-
-int P2PMessageCall::getPropY() const
-{
-    return propY_var;
-}
-
-void P2PMessageCall::setPropY(int propY)
-{
-    this->propY_var = propY;
-}
-
-int P2PMessageCall::getPropZ() const
-{
-    return propZ_var;
-}
-
-void P2PMessageCall::setPropZ(int propZ)
-{
-    this->propZ_var = propZ;
+    this->numRing_var = numRing;
 }
 
 class P2PMessageCallDescriptor : public cClassDescriptor
@@ -481,7 +493,7 @@ const char *P2PMessageCallDescriptor::getProperty(const char *propertyname) cons
 int P2PMessageCallDescriptor::getFieldCount(void *object) const
 {
     cClassDescriptor *basedesc = getBaseClassDescriptor();
-    return basedesc ? 8+basedesc->getFieldCount(object) : 8;
+    return basedesc ? 9+basedesc->getFieldCount(object) : 9;
 }
 
 unsigned int P2PMessageCallDescriptor::getFieldTypeFlags(void *object, int field) const
@@ -495,14 +507,15 @@ unsigned int P2PMessageCallDescriptor::getFieldTypeFlags(void *object, int field
     static unsigned int fieldTypeFlags[] = {
         FD_ISEDITABLE,
         FD_ISEDITABLE,
-        FD_ISCOMPOUND,
-        FD_ISCOMPOUND,
-        FD_ISCOMPOUND,
         FD_ISEDITABLE,
-        FD_ISEDITABLE,
+        FD_ISCOMPOUND,
+        FD_ISCOMPOUND,
+        FD_ISCOMPOUND,
+        FD_ISCOMPOUND,
+        FD_ISCOMPOUND,
         FD_ISEDITABLE,
     };
-    return (field>=0 && field<8) ? fieldTypeFlags[field] : 0;
+    return (field>=0 && field<9) ? fieldTypeFlags[field] : 0;
 }
 
 const char *P2PMessageCallDescriptor::getFieldName(void *object, int field) const
@@ -515,15 +528,16 @@ const char *P2PMessageCallDescriptor::getFieldName(void *object, int field) cons
     }
     static const char *fieldNames[] = {
         "msgType",
+        "rspTo",
         "nodeColor",
         "senderAddress",
         "senderKey",
+        "destKey",
+        "bootstrapKey",
         "propKey",
-        "propX",
-        "propY",
-        "propZ",
+        "numRing",
     };
-    return (field>=0 && field<8) ? fieldNames[field] : NULL;
+    return (field>=0 && field<9) ? fieldNames[field] : NULL;
 }
 
 int P2PMessageCallDescriptor::findField(void *object, const char *fieldName) const
@@ -531,13 +545,14 @@ int P2PMessageCallDescriptor::findField(void *object, const char *fieldName) con
     cClassDescriptor *basedesc = getBaseClassDescriptor();
     int base = basedesc ? basedesc->getFieldCount(object) : 0;
     if (fieldName[0]=='m' && strcmp(fieldName, "msgType")==0) return base+0;
-    if (fieldName[0]=='n' && strcmp(fieldName, "nodeColor")==0) return base+1;
-    if (fieldName[0]=='s' && strcmp(fieldName, "senderAddress")==0) return base+2;
-    if (fieldName[0]=='s' && strcmp(fieldName, "senderKey")==0) return base+3;
-    if (fieldName[0]=='p' && strcmp(fieldName, "propKey")==0) return base+4;
-    if (fieldName[0]=='p' && strcmp(fieldName, "propX")==0) return base+5;
-    if (fieldName[0]=='p' && strcmp(fieldName, "propY")==0) return base+6;
-    if (fieldName[0]=='p' && strcmp(fieldName, "propZ")==0) return base+7;
+    if (fieldName[0]=='r' && strcmp(fieldName, "rspTo")==0) return base+1;
+    if (fieldName[0]=='n' && strcmp(fieldName, "nodeColor")==0) return base+2;
+    if (fieldName[0]=='s' && strcmp(fieldName, "senderAddress")==0) return base+3;
+    if (fieldName[0]=='s' && strcmp(fieldName, "senderKey")==0) return base+4;
+    if (fieldName[0]=='d' && strcmp(fieldName, "destKey")==0) return base+5;
+    if (fieldName[0]=='b' && strcmp(fieldName, "bootstrapKey")==0) return base+6;
+    if (fieldName[0]=='p' && strcmp(fieldName, "propKey")==0) return base+7;
+    if (fieldName[0]=='n' && strcmp(fieldName, "numRing")==0) return base+8;
     return basedesc ? basedesc->findField(object, fieldName) : -1;
 }
 
@@ -552,14 +567,15 @@ const char *P2PMessageCallDescriptor::getFieldTypeString(void *object, int field
     static const char *fieldTypeStrings[] = {
         "int",
         "int",
+        "int",
         "TransportAddress",
-        "OverlayKey",
-        "OverlayKey",
-        "int",
-        "int",
+        "HoneyCombKey",
+        "HoneyCombKey",
+        "HoneyCombKey",
+        "HoneyCombKey",
         "int",
     };
-    return (field>=0 && field<8) ? fieldTypeStrings[field] : NULL;
+    return (field>=0 && field<9) ? fieldTypeStrings[field] : NULL;
 }
 
 const char *P2PMessageCallDescriptor::getFieldProperty(void *object, int field, const char *propertyname) const
@@ -575,6 +591,9 @@ const char *P2PMessageCallDescriptor::getFieldProperty(void *object, int field, 
             if (!strcmp(propertyname,"enum")) return "MessageType";
             return NULL;
         case 1:
+            if (!strcmp(propertyname,"enum")) return "MessageType";
+            return NULL;
+        case 2:
             if (!strcmp(propertyname,"enum")) return "NodeColor";
             return NULL;
         default: return NULL;
@@ -606,13 +625,14 @@ std::string P2PMessageCallDescriptor::getFieldAsString(void *object, int field, 
     P2PMessageCall *pp = (P2PMessageCall *)object; (void)pp;
     switch (field) {
         case 0: return long2string(pp->getMsgType());
-        case 1: return long2string(pp->getNodeColor());
-        case 2: {std::stringstream out; out << pp->getSenderAddress(); return out.str();}
-        case 3: {std::stringstream out; out << pp->getSenderKey(); return out.str();}
-        case 4: {std::stringstream out; out << pp->getPropKey(); return out.str();}
-        case 5: return long2string(pp->getPropX());
-        case 6: return long2string(pp->getPropY());
-        case 7: return long2string(pp->getPropZ());
+        case 1: return long2string(pp->getRspTo());
+        case 2: return long2string(pp->getNodeColor());
+        case 3: {std::stringstream out; out << pp->getSenderAddress(); return out.str();}
+        case 4: {std::stringstream out; out << pp->getSenderKey(); return out.str();}
+        case 5: {std::stringstream out; out << pp->getDestKey(); return out.str();}
+        case 6: {std::stringstream out; out << pp->getBootstrapKey(); return out.str();}
+        case 7: {std::stringstream out; out << pp->getPropKey(); return out.str();}
+        case 8: return long2string(pp->getNumRing());
         default: return "";
     }
 }
@@ -628,10 +648,9 @@ bool P2PMessageCallDescriptor::setFieldAsString(void *object, int field, int i, 
     P2PMessageCall *pp = (P2PMessageCall *)object; (void)pp;
     switch (field) {
         case 0: pp->setMsgType(string2long(value)); return true;
-        case 1: pp->setNodeColor(string2long(value)); return true;
-        case 5: pp->setPropX(string2long(value)); return true;
-        case 6: pp->setPropY(string2long(value)); return true;
-        case 7: pp->setPropZ(string2long(value)); return true;
+        case 1: pp->setRspTo(string2long(value)); return true;
+        case 2: pp->setNodeColor(string2long(value)); return true;
+        case 8: pp->setNumRing(string2long(value)); return true;
         default: return false;
     }
 }
@@ -647,14 +666,15 @@ const char *P2PMessageCallDescriptor::getFieldStructName(void *object, int field
     static const char *fieldStructNames[] = {
         NULL,
         NULL,
+        NULL,
         "TransportAddress",
-        "OverlayKey",
-        "OverlayKey",
-        NULL,
-        NULL,
+        "HoneyCombKey",
+        "HoneyCombKey",
+        "HoneyCombKey",
+        "HoneyCombKey",
         NULL,
     };
-    return (field>=0 && field<8) ? fieldStructNames[field] : NULL;
+    return (field>=0 && field<9) ? fieldStructNames[field] : NULL;
 }
 
 void *P2PMessageCallDescriptor::getFieldStructPointer(void *object, int field, int i) const
@@ -667,9 +687,11 @@ void *P2PMessageCallDescriptor::getFieldStructPointer(void *object, int field, i
     }
     P2PMessageCall *pp = (P2PMessageCall *)object; (void)pp;
     switch (field) {
-        case 2: return (void *)(&pp->getSenderAddress()); break;
-        case 3: return (void *)(&pp->getSenderKey()); break;
-        case 4: return (void *)(&pp->getPropKey()); break;
+        case 3: return (void *)(&pp->getSenderAddress()); break;
+        case 4: return (void *)(&pp->getSenderKey()); break;
+        case 5: return (void *)(&pp->getDestKey()); break;
+        case 6: return (void *)(&pp->getBootstrapKey()); break;
+        case 7: return (void *)(&pp->getPropKey()); break;
         default: return NULL;
     }
 }

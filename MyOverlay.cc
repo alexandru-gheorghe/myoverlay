@@ -77,27 +77,7 @@ void MyOverlay::setOwnNodeID()
 
 }
 
-OverlayKey MyOverlay::generateKey(int xKey, int yKey, int zKey) {
-    if(xKey == 0 && yKey == 0 && zKey == 0)
-        return OverlayKey::UNSPECIFIED_KEY;
-    unsigned char *buffer;
-    buffer = (unsigned char *)malloc(KEY_LENGTH * sizeof(char));
-    memcpy(buffer, &xKey, sizeof(int));
-    memcpy(buffer + sizeof(int), &yKey, sizeof(int));
-    memcpy(buffer + 2 * sizeof(int), &zKey, sizeof(int));
-    return OverlayKey(buffer, KEY_LENGTH);
 
-}
-
-int MyOverlay::parseKey(OverlayKey key, int &x, int &y, int &z) {
-    if(key.isUnspecified())
-        return KEY_ERROR;
-    x = key.getBitRange(0, sizeof(int));
-    y = key.getBitRange(sizeof(int), sizeof(int));
-    z = key.getBitRange(2 * sizeof(int), sizeof(int));
-
-    return KEY_SUCCESS;
-}
 
 // Called when the module is ready to join the overlay
 void MyOverlay::joinOverlay()
@@ -286,6 +266,7 @@ bool MyOverlay::handleRpcCall(BaseCallMessage *msg)
 
 // Called when an RPC we sent has timed out.
 // Don't delete msg here!
+/*
 P2PMessageResponse* MyOverlay::createJoinResponse(P2PMessageCall *p2pmc) {
     P2PMessageResponse *p2pmr = new P2PMessageResponse();
     p2pmr->setMsgType(MSG_JOIN_ACCEPT);
@@ -316,87 +297,9 @@ P2PMessageResponse* MyOverlay::createJoinResponse(P2PMessageCall *p2pmc) {
     }
     return p2pmr;
 }
+*/
 
-int MyOverlay::getAvailableKey(int &x, int &y, int &z) {
-    if(nodeColor == UNKNOWN_COLOR)
-        return KEY_ERROR;
-    if(nodeColor == BLACK_NODE) {
-        if(xKey < numRing && xNode.isUnspecified()) {
-            x = xKey + 1;
-            y = yKey;
-            z = zKey;
-            return X_KEY;
-        }
-        if(yKey < numRing && yNode.isUnspecified()) {
-            x = xKey;
-            y = yKey + 1;
-            z = zKey;
-            return Y_KEY;
-        }
-        if(zKey < numRing && zNode.isUnspecified()) {
-            x = xKey;
-            y = yKey;
-            z = zKey + 1;
-            return Z_KEY;
-        }
-    }
-    if(nodeColor == WHITE_NODE) {
-        if(xKey > -numRing + 1 && xNode.isUnspecified()) {
-            x = xKey - 1;
-            y = yKey;
-            z = zKey;
-            return X_KEY;
-        }
-        if(yKey > -numRing + 1 && yNode.isUnspecified()) {
-            x = xKey;
-            y = yKey - 1;
-            z = zKey;
-            return Y_KEY;
-        }
-        if(zKey > -numRing + 1 && yNode.isUnspecified()) {
-            x = xKey;
-            y = yKey;
-            z = zKey -1;
-            return Z_KEY;
-        }
-    }
-    return KEY_ERROR;
-}
 
-std::vector<NodeHandle> MyOverlay::getSameChainNeighbours() {
-    std::vector<NodeHandle> nodes;
-    if(sign(xKey) == sign(yKey)) {
-        nodes.push_back(xNode);
-        nodes.push_back(yNode);
-    }
-    if(sign(xKey) == sign(zKey)) {
-        nodes.push_back(xNode);
-        nodes.push_back(zNode);
-    }
-    if(sign(yKey) == sign(zKey)) {
-        nodes.push_back(yNode);
-        nodes.push_back(zNode);
-    }
-    return nodes;
-}
-
-NodeHandle MyOverlay::getDiffChainNeighbour() {
-    if(sign(xKey) == sign(yKey)) {
-        return zNode;
-    }
-    if(sign(xKey) == sign(zKey)) {
-        return yNode;
-    }
-    if(sign(yKey) == sign(zKey)) {
-        return xNode;
-    }
-    return NodeHandle::UNSPECIFIED_NODE;
-}
-
-int MyOverlay::sign(int x) {
-    if(x > 0)   return POZ;
-    return NEG;
-}
 void MyOverlay::handleRpcTimeout(BaseCallMessage* msg,
                          const TransportAddress& dest,
                          cPolymorphic* context, int rpcId,

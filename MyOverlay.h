@@ -25,12 +25,8 @@
 
 #include "BaseOverlay.h"
 #include "MyOverlay_m.h"
+#include "OverlayInfo.h"
 #include <vector>
-enum STAGE_TYPE
-{
-    INIT_STAGE = 1,
-    JOIN_STAGE = 2
-};
 
 #define X_UNIT 1
 #define Y_UNIT 1
@@ -45,9 +41,11 @@ enum STAGE_TYPE
 
 #define POZ     1
 #define NEG     -1
+
+
 class MyOverlay : public BaseOverlay
 {
-private:
+public:
     // RPC timer
     cMessage *rpcTimer;
 
@@ -62,7 +60,7 @@ private:
     // statistics
     int numDropped;          // how many packets have we dropped?
     // routine for RPC timer
-
+    OverlayInfo nodeInfo;
     /* bootstrapNode */
     NodeHandle bootstrapNode;
     int xKey;
@@ -70,12 +68,11 @@ private:
     int zKey;
     int numRing;
     NodeColor nodeColor;
-    STAGE_TYPE stage;
 
     NodeHandle xNode;
     NodeHandle yNode;
     NodeHandle zNode;
-
+public:
     void handleTimerEvent(cMessage *msg);
 
     // overlay routines
@@ -87,13 +84,7 @@ private:
     /* my functions */
     void addFirstNode();
     void sendJoinMessage();
-    OverlayKey generateKey(int x, int y, int z);
-    int parseKey(OverlayKey key, int &x, int &y, int &z);
     P2PMessageResponse* createJoinResponse(P2PMessageCall *p2pmc);
-    int getAvailableKey(int &x, int &y, int &z);
-    std::vector<NodeHandle> getSameChainNeighbours();
-    NodeHandle getDiffChainNeighbour();
-    int sign(int x);
     // obligatory: called when we need the next hop to route a packet to the given key
     NodeVector* findNode(const OverlayKey& key,             // key to route to
                                  int numRedundantNodes,     // how many candidates for next hop we want (see getMaxNumSiblings)
@@ -138,5 +129,6 @@ public:
     MyOverlay() { rpcTimer = NULL; };
     ~MyOverlay() { cancelAndDelete(rpcTimer); };
 };
+
 
 #endif
