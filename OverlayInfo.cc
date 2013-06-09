@@ -97,6 +97,13 @@ int OverlayInfo::getAvailableKey(int &x, int &y, int &z) {
     return KEY_ERROR;
 }
 
+int OverlayInfo::getAvailableKey(HoneyCombKey &key) {
+    int x = 0, y = 0, z = 0;
+    int res = getAvailableKey(x, y, z);
+    key = generateKey(x, y, z);
+    return res;
+}
+
 NodeColor OverlayInfo::getNeighbourColor() {
     if(nodeColor == BLACK_NODE)
         return WHITE_NODE;
@@ -178,6 +185,45 @@ bool OverlayInfo::isKeyTaken(int xKey, int yKey, int zKey) {
 
 bool OverlayInfo::isKeyTaken(HoneyCombKey key) {
     return isKeyTaken(key.xKey, key.yKey, key.zKey);
+}
+
+std::vector<HoneyCombKey> OverlayInfo::getNeighOfKey() {
+    return getNeighOfKey(key, (NodeColor)nodeColor);
+}
+std::vector<HoneyCombKey> OverlayInfo::getNeighOfKey(HoneyCombKey key) {
+    if(nodeColor == WHITE_NODE)
+        return getNeighOfKey(key, BLACK_NODE);
+    if(nodeColor == BLACK_NODE)
+        return getNeighOfKey(key, WHITE_NODE);
+    return getNeighOfKey(key, UNKNOWN_COLOR);
+}
+
+std::vector<HoneyCombKey> OverlayInfo::getNeighOfKey(HoneyCombKey key, NodeColor nodeColor) {
+    std::vector<HoneyCombKey> keys;
+    HoneyCombKey genKey;
+    int sign;
+    if(nodeColor == WHITE_NODE)
+        sign = -1;
+    else {
+        if(nodeColor == BLACK_NODE)
+            sign = 1;
+        else
+            sign = 0;
+    }
+
+    genKey = generateKey(key.xKey + sign, key.yKey, key.zKey);
+    if(!genKey.isTheSameKey(this->key) && genKey.isInteriorToChain(numRing))
+        keys.push_back(genKey);
+
+    genKey = generateKey(key.xKey, key.yKey + sign, key.zKey);
+    if(!genKey.isTheSameKey(this->key) && genKey.isInteriorToChain(numRing))
+        keys.push_back(genKey);
+
+    genKey = generateKey(key.xKey, key.yKey, key.zKey + sign);
+    if(!genKey.isTheSameKey(this->key) && genKey.isInteriorToChain(numRing))
+        keys.push_back(genKey);
+
+    return keys;
 }
 
 OverlayInfo::~OverlayInfo() {

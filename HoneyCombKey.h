@@ -7,7 +7,8 @@
 
 #ifndef HONEYCOMBKEY_H_
 #define HONEYCOMBKEY_H_
-
+#include <stdint.h>
+#include "OverlayKey.h"
 
 class HoneyCombKey: public OverlayKey {
 public:
@@ -22,6 +23,7 @@ public:
     int compareTo(HoneyCombKey key);
     bool isTheSameKey(int xKey, int yKey, int zKey);
     bool isTheSameKey(HoneyCombKey key);
+    bool isInteriorToChain(int numRing);
     virtual ~HoneyCombKey();
 };
 

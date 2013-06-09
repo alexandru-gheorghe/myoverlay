@@ -92,7 +92,7 @@ void MyOverlay::joinOverlay()
     nextNode.setPort(thisNode.getPort());
     nextNode.setKey(OverlayKey(myKey + 1));
     */
-
+    this->globalNodeList-
     bootstrapNode = this->globalNodeList->getBootstrapNode(this->overlayId, NodeHandle::UNSPECIFIED_NODE);
 
     /* this means is the first node from overlay */
@@ -123,10 +123,18 @@ void MyOverlay::sendJoinMessage() {
     TransportAddress nodeAddress( thisNode.getIp(),
                                   thisNode.getPort(),
                                   thisNode.getNatType());
-    msg->setSenderAddress(nodeAddress);
-    msg->setSenderKey(thisNode.getKey());
+    //msg->setSenderAddress(nodeAddress);
+    //msg->setSenderKey(thisNode.getKey());
     sendRouteRpcCall(OVERLAY_COMP, bootstrapNode, msg);
 
+}
+void MyOverlay::sendMessage(HoneyCombKey key, P2PMessageCall *msg) {
+    sendRouteRpcCall(OVERLAY_COMP, key, msg);
+}
+
+void MyOverlay::sendMessage(NodeHandle node, P2PMessageCall *msg) {
+    //sendRouteRpcCall(OVERLAY_COMP, node, msg);
+    sendRouteRpcCall(OVERLAY_COMP, node, msg);
 }
 void MyOverlay::handleTimerEvent(cMessage *msg)
 {
@@ -338,7 +346,7 @@ void MyOverlay::handleRpcResponse(BaseResponseMessage* msg,
         P2PMessageResponse *p2pmr = (P2PMessageResponse*)msg;
         // call our interface function
         if( !p2pmr->getPropKey().isUnspecified() ) {
-            parseKey(p2pmr->getPropKey(), xKey, yKey, zKey);
+            //parseKey(p2pmr->getPropKey(), xKey, yKey, zKey);
             xKey = p2pmr->getPropX();
             yKey = p2pmr->getPropY();
             zKey = p2pmr->getPropZ();

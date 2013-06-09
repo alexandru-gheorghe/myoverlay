@@ -17,6 +17,7 @@
 #include <GlobalNodeList.h>
 #include <vector>
 #include "MyOverlay_m.h"
+#include <stdint.h>
 
 #include "MyOverlay.h"
 HoneyCombKey::HoneyCombKey():OverlayKey() {
@@ -72,8 +73,16 @@ int HoneyCombKey::compareTo(HoneyCombKey key) {
     if(zKey < key.zKey)
         return -1;
     return 0;
+
 }
 
+bool HoneyCombKey::isInteriorToChain(int numRing) {
+    if(getMaxKey() > numRing)
+        return false;
+    if(getMinKey() <= -numRing)
+        return false;
+    return true;
+}
 HoneyCombKey generateKey(int xKey, int yKey, int zKey) {
     unsigned char *buffer;
     buffer = (unsigned char *)malloc(KEY_LENGTH * sizeof(char));

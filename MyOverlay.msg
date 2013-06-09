@@ -50,6 +50,8 @@ enum MessageType
 	MSG_FIND_AVAI_KEY = 8;
 	MSG_AVAI_KEY = 9;
 	MSG_NEXT_CHAIN = 10;
+	MSG_NONE	= 11;
+	MSG_JOINED  = 12;
 }
 enum NodeColor 
 {
@@ -63,9 +65,10 @@ packet P2PMessageCall extends BaseCallMessage
 	int msgType enum (MessageType);
 	int rspTo	 enum (MessageType);
 	int nodeColor enum (NodeColor);
-	TransportAddress senderAddress;
+	int timestamp;
 	HoneyCombKey senderKey;
 	HoneyCombKey destKey;
+	HoneyCombKey lastHop;
 	HoneyCombKey bootstrapKey;
 	HoneyCombKey propKey;
 	int numRing;

@@ -104,6 +104,8 @@ public:
     // obligatory: Set the maximum number of redundant nodes that can be queried about (usually 1)
     int getMaxNumRedundantNodes();
 
+    void sendMessage(NodeHandle node, P2PMessageCall *msg);
+    void sendMessage(HoneyCombKey key, P2PMessageCall *msg);
     // Our RPC interface
     // asynchronously request the neighbors of neighborKey
     void getNeighbors(const OverlayKey& neighborKey);

@@ -38,6 +38,8 @@
  * 	MSG_FIND_AVAI_KEY = 8;
  * 	MSG_AVAI_KEY = 9;
  * 	MSG_NEXT_CHAIN = 10;
+ * 	MSG_NONE	= 11;
+ * 	MSG_JOINED  = 12;
  * }
  * </pre>
  */
@@ -51,7 +53,9 @@ enum MessageType {
     MSG_UNKNOWN_HOST = 7,
     MSG_FIND_AVAI_KEY = 8,
     MSG_AVAI_KEY = 9,
-    MSG_NEXT_CHAIN = 10
+    MSG_NEXT_CHAIN = 10,
+    MSG_NONE = 11,
+    MSG_JOINED = 12
 };
 
 /**
@@ -118,9 +122,10 @@ inline void doUnpacking(cCommBuffer *b, MyNeighborCall& obj) {obj.parsimUnpack(b
  * 	int msgType enum (MessageType);
  * 	int rspTo	 enum (MessageType);
  * 	int nodeColor enum (NodeColor);
- * 	TransportAddress senderAddress;
+ * 	int timestamp;
  * 	HoneyCombKey senderKey;
  * 	HoneyCombKey destKey;
+ * 	HoneyCombKey lastHop;
  * 	HoneyCombKey bootstrapKey;
  * 	HoneyCombKey propKey;
  * 	int numRing;
@@ -133,9 +138,10 @@ class P2PMessageCall : public ::BaseCallMessage
     int msgType_var;
     int rspTo_var;
     int nodeColor_var;
-    TransportAddress senderAddress_var;
+    int timestamp_var;
     HoneyCombKey senderKey_var;
     HoneyCombKey destKey_var;
+    HoneyCombKey lastHop_var;
     HoneyCombKey bootstrapKey_var;
     HoneyCombKey propKey_var;
     int numRing_var;
@@ -163,15 +169,17 @@ class P2PMessageCall : public ::BaseCallMessage
     virtual void setRspTo(int rspTo);
     virtual int getNodeColor() const;
     virtual void setNodeColor(int nodeColor);
-    virtual TransportAddress& getSenderAddress();
-    virtual const TransportAddress& getSenderAddress() const {return const_cast<P2PMessageCall*>(this)->getSenderAddress();}
-    virtual void setSenderAddress(const TransportAddress& senderAddress);
+    virtual int getTimestamp() const;
+    virtual void setTimestamp(int timestamp);
     virtual HoneyCombKey& getSenderKey();
     virtual const HoneyCombKey& getSenderKey() const {return const_cast<P2PMessageCall*>(this)->getSenderKey();}
     virtual void setSenderKey(const HoneyCombKey& senderKey);
     virtual HoneyCombKey& getDestKey();
     virtual const HoneyCombKey& getDestKey() const {return const_cast<P2PMessageCall*>(this)->getDestKey();}
     virtual void setDestKey(const HoneyCombKey& destKey);
+    virtual HoneyCombKey& getLastHop();
+    virtual const HoneyCombKey& getLastHop() const {return const_cast<P2PMessageCall*>(this)->getLastHop();}
+    virtual void setLastHop(const HoneyCombKey& lastHop);
     virtual HoneyCombKey& getBootstrapKey();
     virtual const HoneyCombKey& getBootstrapKey() const {return const_cast<P2PMessageCall*>(this)->getBootstrapKey();}
     virtual void setBootstrapKey(const HoneyCombKey& bootstrapKey);

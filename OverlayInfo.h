@@ -31,8 +31,12 @@ public:
     void addNewNode(HoneyCombKey key);
     OverlayInfo* getDiffChainNeighbour();
     std::vector<OverlayInfo *> getSameChainNeighbours();
+    std::vector<HoneyCombKey> getNeighOfKey();
+    std::vector<HoneyCombKey> getNeighOfKey(HoneyCombKey key);
+    std::vector<HoneyCombKey> getNeighOfKey(HoneyCombKey key, NodeColor nodeColor);
     OverlayInfo* getExtNeigh();
     int getAvailableKey(int &x, int &y, int &z);
+    int getAvailableKey(HoneyCombKey &key);
     bool isOnLastChain();
     int getNumNeigh();
     void setOverlayKey(HoneyCombKey key);
