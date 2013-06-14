@@ -226,6 +226,38 @@ std::vector<HoneyCombKey> OverlayInfo::getNeighOfKey(HoneyCombKey key, NodeColor
     return keys;
 }
 
+OverlayInfo* OverlayInfo::getNextHop(HoneyCombKey key) {
+    int xDist = 99999, yDist = 99999, zDist = 99999; // Magic Number
+    if(xNeigh == NULL && yNeigh == NULL && zNeigh == NULL)
+        return NULL;
+    if(xNeigh)
+        xDist = xNeigh->key.getDist();
+    if(yNeigh)
+        yDist = yNeigh->key.getDist();
+    if(zNeigh)
+        zDist = zNeigh->key.getDist();
+    if(xDist <= yDist && xDist <= zDist)
+        return xNeigh;
+    if(yDist <= xDist && yDist <= zDist)
+        return yNeigh;
+    if(zDist <= xDist && zDist <= yDist)
+        return zNeigh;
+    return NULL;
+}
+
+void OverlayInfo::addNeigh(HoneyCombKey key, NodeHandle node) {
+    OverlayInfo *neigh = new OverlayInfo();
+    neigh->nodeColor = getNeighbourColor();
+    neigh->nodeHandle = node;
+    neigh->numRing = numRing;
+    neigh->key = key;
+    if(this->key.isXNeigh(key))
+        xNeigh = neigh;
+    if(this->key.isYNeigh(key))
+        yNeigh = neigh;
+    if(this->key.isZNeigh(key))
+        zNeigh = neigh;
+}
 OverlayInfo::~OverlayInfo() {
     // TODO Auto-generated destructor stub
 }

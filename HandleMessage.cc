@@ -21,8 +21,12 @@ void HandleMessage::handleMessageCall(P2PMessageCall *msgCall) {
     }
     if(msgCall->getMsgType() == MSG_JOIN)
         handleJoin(msgCall);
+    if(msgCall->getMsgType() == MSG_JOINED)
+        handleJoined(msgCall);
     if(msgCall->getMsgType() == MSG_JOIN_ACCEPT)
         handleJoinAccept(msgCall);
+    if(msgCall->getMsgType() == MSG_WELCOME)
+        handleWelcome(msgCall);
     if(msgCall->getMsgType() == MSG_JOIN_DECLINE)
         handleJoinDecline(msgCall);
     if(msgCall->getMsgType() == MSG_KEY_RESERVED)
@@ -64,10 +68,20 @@ void HandleMessage::handleJoin(P2PMessageCall *msgCall) {
 
 }
 
+void HandleMessage::handleJoined(P2PMessageCall *msgCall) {
+    node->nodeInfo.addNeigh(msgCall->getSenderKey(), msgCall->getSrcNode());
+    P2PMessageCall *rsp = new P2PMessageCall();
+    rsp->setMsgType(MSG_WELCOME);
+    rsp->setDestKey(msgCall->getSenderKey());
+    sendMessageAsResponse(msgCall, rsp);
+}
 void HandleMessage::handleJoinDecline(P2PMessageCall *msgCall) {
     sendJoin(msgCall->getBootstrapKey());
 }
 
+void HandleMessage::handleWelcome(P2PMessageCall *msgCall) {
+    node->nodeInfo.addNeigh(msgCall->getSenderKey(), msgCall->getSrcNode());
+}
 void HandleMessage::handleJoinAccept(P2PMessageCall *msgCall) {
     node->nodeInfo.setOverlayKey(msgCall->getPropKey());
     node->nodeInfo.nodeColor = msgCall->getNodeColor();
@@ -101,6 +115,7 @@ void HandleMessage::handleKeyReservedAck(P2PMessageCall *msgCall) {
             stage =  STAGE_WAIT_MESSAGE;
             handleJoin(currJoinMessage);
         }
+        resMessages.clear();
     }
 }
 
@@ -159,6 +174,7 @@ void HandleMessage::handleNextChain(P2PMessageCall *msgCall) {
 }
 
 void HandleMessage::sendKeyReserved(HoneyCombKey key) {
+    numResWait = 0;
     std::vector<HoneyCombKey> neighsOfKey = node->nodeInfo.getNeighOfKey(key);
     P2PMessageCall *msg;
     msg = new P2PMessageCall();
@@ -169,6 +185,7 @@ void HandleMessage::sendKeyReserved(HoneyCombKey key) {
     stage =  STAGE_WAIT_KEY_RESERVED_RPY;
     for(unsigned int i = 0; i < neighsOfKey.size(); i++) {
         sendMessage(neighsOfKey[i], msg);
+        numResWait++;
     }
 }
 
@@ -202,6 +219,8 @@ void HandleMessage::sendJoinAccept() {
     msg = new P2PMessageCall();
     msg->setMsgType(MSG_JOIN_ACCEPT);
     msg->setPropKey(reservedKey);
+    node->nodeInfo.addNeigh(reservedKey, currJoinMessage->getSrcNode());
+
     sendMessageAsResponse(currJoinMessage, msg);
     stage =  STAGE_WAIT_MESSAGE;
     handleNextJoinMessage();
@@ -264,26 +283,79 @@ void HandleMessage::sendAvaiKeyToNextNode(P2PMessageCall *msgCall) {
 }
 
 void HandleMessage::sendMessage(HoneyCombKey dest, P2PMessageCall *msgCall) {
+    msgCall->setDestKey(dest);
+    msgCall->setSenderKey(node->nodeInfo.key);
     node->sendMessage(dest, msgCall);
 }
 
 void HandleMessage::sendMessageAsResponse(P2PMessageCall *origMsg, P2PMessageCall *resp) {
     NodeHandle node = origMsg->getSrcNode();
+    resp->setSenderKey(this->node->nodeInfo.key);
     this->node->sendMessage(node, resp);
 
 }
 
-void HandleMessage::routeMsg(P2PMessageCall *msgCall) {
+NodeHandle* HandleMessage::routeMsg(P2PMessageCall *msgCall) {
     if(alreadyRoutedMessage(msgCall)) {
         P2PMessageCall *msg = new P2PMessageCall();
         msg->setMsgType(MSG_UNKNOWN_HOST);
         msg->setRspTo(msgCall->getMsgType());
         sendMessage(msgCall->getDestKey(), msg);
+        return NULL;
     } else {
         addMessageRouted(msgCall);
+        OverlayInfo *neighInfo = node->nodeInfo.getNextHop(msgCall->getDestKey());
+        return neighInfo->nodeHandle;
 
     }
 
+}
+
+void HandleMessage::addKeyReservedAck() {
+    resMessages.push_back(MSG_KEY_RESERVED_ACK);
+    numResWait--;
+}
+
+void HandleMessage::addKeyReservedDecline() {
+    resMessages.push_back(MSG_KEY_RESERVED_DECLINE);
+    numResWait--;
+}
+
+bool HandleMessage::allNeighRespondedAck() {
+    for(int i = 0; i < resMessages.size(); i++)
+        if(resMessages[i] != MSG_KEY_RESERVED_ACK)
+            return false;
+    return true;
+}
+bool HandleMessage::allNeighResponded() {
+    if(numResWait == 0)
+        return true;
+    return false;
+}
+
+
+void HandleMessage::addFindAvaiKey(P2PMessageCall *msgCall) {
+    findMessages.push_back(msgCall);
+}
+
+bool HandleMessage::alreadyReceivedFindAvaiKey(P2PMessageCall *msgCall) {
+    for(int i = 0; i < findMessages.size(); i++)
+        if(findMessages[i]->getSenderKey().isTheSameKey(msgCall->getSenderKey()) &&
+            findMessages[i]->getTimestamp() == msgCall->getTimestamp())
+            return true;
+    return false;
+}
+
+void HandleMessage::addMessageRouted(P2PMessageCall *msgCall) {
+    routMessages.push_back(msgCall);
+}
+
+bool HandleMessage::alreadyRoutedMessage(P2PMessageCall *msgCall) {
+    for(int i = 0; i < routMessages.size(); i++)
+           if(routMessages[i]->getSenderKey().isTheSameKey(msgCall->getSenderKey()) &&
+               routMessages[i]->getTimestamp() == msgCall->getTimestamp())
+               return true;
+       return false;
 }
 HandleMessage::~HandleMessage() {
     // TODO Auto-generated destructor stub

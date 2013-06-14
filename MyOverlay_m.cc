@@ -45,6 +45,7 @@ EXECUTE_ON_STARTUP(
     e->insert(MSG_NEXT_CHAIN, "MSG_NEXT_CHAIN");
     e->insert(MSG_NONE, "MSG_NONE");
     e->insert(MSG_JOINED, "MSG_JOINED");
+    e->insert(MSG_WELCOME, "MSG_WELCOME");
 );
 
 EXECUTE_ON_STARTUP(

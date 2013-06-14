@@ -34,6 +34,8 @@ public:
     std::vector<HoneyCombKey> getNeighOfKey();
     std::vector<HoneyCombKey> getNeighOfKey(HoneyCombKey key);
     std::vector<HoneyCombKey> getNeighOfKey(HoneyCombKey key, NodeColor nodeColor);
+    void addNeigh(HoneyCombKey key, NodeHandle node);
+    OverlayInfo* getNextHop(HoneyCombKey key);
     OverlayInfo* getExtNeigh();
     int getAvailableKey(int &x, int &y, int &z);
     int getAvailableKey(HoneyCombKey &key);

@@ -105,6 +105,24 @@ int parseKey(OverlayKey key, int &x, int &y, int &z) {
 
     return KEY_SUCCESS;
 }
+
+bool HoneyCombKey::isXNeigh(HoneyCombKey key) {
+    if(abs(xKey - key.xKey) == 1 && yKey ==  key.yKey && zKey == key.zKey)
+        return true;
+    return false;
+}
+
+bool HoneyCombKey::isYNeigh(HoneyCombKey key) {
+    if(abs(yKey - key.yKey) == 1 && xKey == key.xKey && zKey == key.zKey)
+        return true;
+    return false;
+}
+bool HoneyCombKey::isZNeigh(HoneyCombKey key) {
+    if(abs(zKey - key.zKey) == 1 && yKey == key.yKey && xKey == key.zKey)
+        return true;
+    return false;
+}
+
 HoneyCombKey::~HoneyCombKey() {
     // TODO Auto-generated destructor stub
 }

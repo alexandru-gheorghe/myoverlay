@@ -52,6 +52,7 @@ enum MessageType
 	MSG_NEXT_CHAIN = 10;
 	MSG_NONE	= 11;
 	MSG_JOINED  = 12;
+	MSG_WELCOME	= 13;
 }
 enum NodeColor 
 {

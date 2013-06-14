@@ -72,6 +72,7 @@ public:
     NodeHandle xNode;
     NodeHandle yNode;
     NodeHandle zNode;
+    HandleMessage messageHandler;
 public:
     void handleTimerEvent(cMessage *msg);
 

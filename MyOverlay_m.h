@@ -40,6 +40,7 @@
  * 	MSG_NEXT_CHAIN = 10;
  * 	MSG_NONE	= 11;
  * 	MSG_JOINED  = 12;
+ * 	MSG_WELCOME	= 13;
  * }
  * </pre>
  */
@@ -55,7 +56,8 @@ enum MessageType {
     MSG_AVAI_KEY = 9,
     MSG_NEXT_CHAIN = 10,
     MSG_NONE = 11,
-    MSG_JOINED = 12
+    MSG_JOINED = 12,
+    MSG_WELCOME = 13
 };
 
 /**

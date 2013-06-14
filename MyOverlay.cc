@@ -163,7 +163,7 @@ bool MyOverlay::isSiblingFor(const NodeHandle& node,
                              bool* err)
 {
     // is it our node and our key?
-    if (node == thisNode && key == thisNode.getKey()) {
+    if (node == thisNode && nodeInfo.key.isTheSameKey((HoneyCombKey)key)) {
         return true;
     }
     // we don't know otherwise
@@ -177,29 +177,21 @@ NodeVector *MyOverlay::findNode(const OverlayKey& key,
                                 BaseOverlayMessage* msg)
 {
     NodeVector* nextHops;
+    HoneyCombKey honeyKey = (HoneyCombKey)key;
 
-    // do we drop the packet?
-    if (uniform(0, 1) < dropChance) {
-        // if yes, return an empty node vector
-        nextHops = new NodeVector(0);
-        numDropped++;
-        return nextHops;
-    }
 
     // else, set the response vector with one node
     nextHops = new NodeVector(1);
 
     // are we responsible? next step is this node
-    if (key == thisNode.getKey()) {
+    if (honeyKey.isTheSameKey(nodeInfo.key)) {
         nextHops->add(thisNode);
-    }
-    // is the key behind us? next step is the previous node
-    else if (key < thisNode.getKey()) {
-        nextHops->add(prevNode);
-    }
-    // otherwise, the next step is the next node
-    else {
-        nextHops->add(nextNode);
+    } else {
+        NodeHandle *node = messageHandler.routeMsg((P2PMessageCall *) msg);
+        if(node == NULL)
+            return nextHops;
+        else
+            nextHops->add(*node);
     }
     return nextHops;
 }
@@ -217,13 +209,13 @@ void MyOverlay::finishOverlay()
 // Return the max amount of siblings that can be queried about
 int MyOverlay::getMaxNumSiblings()
 {
-    return 1;
+    return 3;
 }
 
 // Return the max amount of redundant that can be queried about
 int MyOverlay::getMaxNumRedundantNodes()
 {
-    return 1;
+    return 3;
 }
 
 

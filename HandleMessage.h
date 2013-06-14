@@ -20,7 +20,10 @@ class HandleMessage {
 private:
     MyOverlay *node;
     std::queue<P2PMessageCall *> msgQueue;
-    std::map<>
+    std::vector<int> resMessages;
+    int numResWait;
+    std::vector<P2PMessageCall*> routMessages;
+    std::vector<P2PMessageCall*> findMessages;
     int stage;
     HoneyCombKey reservedKey;
     P2PMessageCall *currJoinMessage;
@@ -38,6 +41,8 @@ public:
 
     void handleMessageCall(P2PMessageCall *msgCall);
     void handleJoin(P2PMessageCall *msgCall);
+    void handleJoined(P2PMessageCall *msgCall);
+    void handleWelcome(P2PMessageCall *msgCall);
     void handleJoinAccept(P2PMessageCall *msgCall);
     void handleJoinDecline(P2PMessageCall *msgCall);
     void handleKeyReserved(P2PMessageCall *msgCall);
@@ -64,7 +69,7 @@ public:
     void sendMessage(HoneyCombKey destKey, P2PMessageCall *msgCall);
     void sendMessageAsResponse(P2PMessageCall *origMsg, P2PMessageCall *resp);
 
-    void routeMsg(P2PMessageCall *msgCall);
+    NodeHandle* routeMsg(P2PMessageCall *msgCall);
     virtual ~HandleMessage();
 };
 
