@@ -70,7 +70,7 @@ packet P2PMessageCall extends BaseCallMessage
 	HoneyCombKey senderKey;
 	HoneyCombKey destKey;
 	HoneyCombKey lastHop;
-	HoneyCombKey bootstrapKey;
+	NodeHandle bootstrapNode;
 	HoneyCombKey propKey;
 	int numRing;
 };

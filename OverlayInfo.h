@@ -28,7 +28,7 @@ public:
 public:
     OverlayInfo();
     int sign(int x);
-    void addNewNode(HoneyCombKey key);
+    void addFirstNode();
     OverlayInfo* getDiffChainNeighbour();
     std::vector<OverlayInfo *> getSameChainNeighbours();
     std::vector<HoneyCombKey> getNeighOfKey();

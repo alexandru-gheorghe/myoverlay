@@ -29,9 +29,10 @@
 #include <GlobalNodeList.h>
 #include <vector>
 #include "MyOverlay_m.h"
-
+#include "HandleMessage.h"
 #include "MyOverlay.h"
-
+#include "HoneyCombKey.h"
+#include "OverlayInfo.h"
 
 // Important! This line must be present for each module you extend (see BaseApp)
 Define_Module(MyOverlay);
@@ -59,10 +60,11 @@ void MyOverlay::initializeOverlay(int stage)
     OverlayKey unspKey;
     thisNode.setKey(unspKey);
 
-    xNode = NodeHandle::UNSPECIFIED_NODE;
-    yNode = NodeHandle::UNSPECIFIED_NODE;
-    zNode = NodeHandle::UNSPECIFIED_NODE;
-    numRing = 1;
+    rpcTimer = NULL;
+    messageHandler = new HandleMessage(this);
+    nodeInfo = OverlayInfo();
+    nodeInfo.nodeHandle = this->thisNode;
+    ready = false;
 
     rpcTimer = new cMessage("RPC timer");
     scheduleAt(simTime() + 5, rpcTimer);
@@ -73,7 +75,7 @@ void MyOverlay::setOwnNodeID()
 {
     // create the corresponding overlay key
 
-    thisNode.setKey(generateKey(xKey, yKey, zKey));
+    thisNode.setKey(nodeInfo.key);
 
 }
 
@@ -92,49 +94,32 @@ void MyOverlay::joinOverlay()
     nextNode.setPort(thisNode.getPort());
     nextNode.setKey(OverlayKey(myKey + 1));
     */
-    this->globalNodeList-
-    bootstrapNode = this->globalNodeList->getBootstrapNode(this->overlayId, NodeHandle::UNSPECIFIED_NODE);
+
+    nodeInfo.bootstrapNode = this->globalNodeList->getBootstrapNode(this->overlayId, NodeHandle::UNSPECIFIED_NODE);
 
     /* this means is the first node from overlay */
-    if(bootstrapNode.isUnspecified()) {
-        addFirstNode();
+    if(nodeInfo.bootstrapNode.isUnspecified()) {
+        nodeInfo.addFirstNode();
+        setOwnNodeID();
+        setReady(true);
     } else {
-        sendJoinMessage();
+        messageHandler->sendJoin(nodeInfo.bootstrapNode);
     }
     // tell the simulator that we're ready
-    setOverlayReady(true);
+    //setOverlayReady(true);
 }
 
-void MyOverlay::addFirstNode() {
-    // first node in the network has the key = (1, 0, 0)
-    // and it is a black node;
-    xKey = X_UNIT;
-    yKey = 0;
-    zKey = 0;
-    nodeColor = BLACK_NODE;
-    setOwnNodeID();
-}
-
-void MyOverlay::sendJoinMessage() {
-    P2PMessageCall *msg = new P2PMessageCall();
-    msg->setMsgType(MSG_JOIN);
-    msg->setNodeColor(UNKNOWN_COLOR);
-
-    TransportAddress nodeAddress( thisNode.getIp(),
-                                  thisNode.getPort(),
-                                  thisNode.getNatType());
-    //msg->setSenderAddress(nodeAddress);
-    //msg->setSenderKey(thisNode.getKey());
-    sendRouteRpcCall(OVERLAY_COMP, bootstrapNode, msg);
-
+void MyOverlay::setReady(bool value) {
+    setOverlayReady(value);
+    ready = value;
 }
 void MyOverlay::sendMessage(HoneyCombKey key, P2PMessageCall *msg) {
-    sendRouteRpcCall(OVERLAY_COMP, key, msg);
+    sendRouteRpcCall(OVERLAY_COMP, key, msg, NULL, DEFAULT_ROUTING, 0);
 }
 
 void MyOverlay::sendMessage(NodeHandle node, P2PMessageCall *msg) {
     //sendRouteRpcCall(OVERLAY_COMP, node, msg);
-    sendRouteRpcCall(OVERLAY_COMP, node, msg);
+    sendRouteRpcCall(OVERLAY_COMP, node, msg, NULL, DEFAULT_ROUTING, 0);
 }
 void MyOverlay::handleTimerEvent(cMessage *msg)
 {
@@ -163,7 +148,8 @@ bool MyOverlay::isSiblingFor(const NodeHandle& node,
                              bool* err)
 {
     // is it our node and our key?
-    if (node == thisNode && nodeInfo.key.isTheSameKey((HoneyCombKey)key)) {
+    HoneyCombKey *pk = (HoneyCombKey *)&key;
+    if(node == thisNode && nodeInfo.key.isTheSameKey(*pk)) {
         return true;
     }
     // we don't know otherwise
@@ -177,17 +163,25 @@ NodeVector *MyOverlay::findNode(const OverlayKey& key,
                                 BaseOverlayMessage* msg)
 {
     NodeVector* nextHops;
-    HoneyCombKey honeyKey = (HoneyCombKey)key;
+    P2PMessageCall *pMsg = dynamic_cast<P2PMessageCall*>(msg);
+    int x, y, z;
+    parseKey(key, x, y, z);
+    /*
+    if(pMsg == NULL) {
+        return NULL;
+    }
+    */
+    HoneyCombKey *pHoneyKey = (HoneyCombKey *)&key;
 
 
     // else, set the response vector with one node
     nextHops = new NodeVector(1);
 
     // are we responsible? next step is this node
-    if (honeyKey.isTheSameKey(nodeInfo.key)) {
+    if (pHoneyKey->isTheSameKey(nodeInfo.key)) {
         nextHops->add(thisNode);
     } else {
-        NodeHandle *node = messageHandler.routeMsg((P2PMessageCall *) msg);
+        NodeHandle *node = messageHandler->routeMsg((P2PMessageCall *) msg);
         if(node == NULL)
             return nextHops;
         else
@@ -249,11 +243,8 @@ bool MyOverlay::handleRpcCall(BaseCallMessage *msg)
     // enters the following block if the message is of type MyNeighborCall (note the shortened parameter!)
     RPC_ON_CALL(P2PMessage) {
         // get Call message
-        P2PMessageCall *p2pmc = (P2PMessageCall*)msg;
-        P2PMessageResponse *p2pmr = createJoinResponse(p2pmc);
-        sendRpcResponse(p2pmc, p2pmr);
-
         RPC_HANDLED = true;  // set to true, since we did handle this RPC (default is false)
+        messageHandler->handleMessageCall((P2PMessageCall *)msg);
     }
 
     // end the switch
@@ -339,9 +330,6 @@ void MyOverlay::handleRpcResponse(BaseResponseMessage* msg,
         // call our interface function
         if( !p2pmr->getPropKey().isUnspecified() ) {
             //parseKey(p2pmr->getPropKey(), xKey, yKey, zKey);
-            xKey = p2pmr->getPropX();
-            yKey = p2pmr->getPropY();
-            zKey = p2pmr->getPropZ();
             setOwnNodeID();
         }
     }
@@ -364,4 +352,15 @@ void MyOverlay::callbackTimeout(const OverlayKey &neighborKey)
 {
     EV << thisNode << ": (RPC) Query to " << neighborKey
        << " timed out!" << std::endl;
+}
+
+MyOverlay::MyOverlay() {
+    rpcTimer = NULL;
+    messageHandler = new HandleMessage(this);
+    nodeInfo = OverlayInfo();
+    nodeInfo.nodeHandle = this->thisNode;
+    ready = false;
+}
+MyOverlay::~MyOverlay() {
+    cancelAndDelete(rpcTimer);
 }

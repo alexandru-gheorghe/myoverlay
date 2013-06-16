@@ -28,6 +28,11 @@ HoneyCombKey::HoneyCombKey(const unsigned char *buffer, uint32_t size)
     // TODO Auto-generated constructor stub
 
 }
+HoneyCombKey::HoneyCombKey(const HoneyCombKey &oldKey):OverlayKey(oldKey) {
+    xKey = oldKey.xKey;
+    yKey = oldKey.yKey;
+    zKey = oldKey.zKey;
+}
 int HoneyCombKey::getMaxKey() {
     if(xKey >= yKey && xKey >= zKey)
         return xKey;
@@ -121,6 +126,25 @@ bool HoneyCombKey::isZNeigh(HoneyCombKey key) {
     if(abs(zKey - key.zKey) == 1 && yKey == key.yKey && xKey == key.zKey)
         return true;
     return false;
+}
+
+HoneyCombKey& HoneyCombKey::operator=(const HoneyCombKey& rhs)
+{
+    OverlayKey::operator=(rhs);
+    xKey = rhs.xKey;
+    yKey = rhs.yKey;
+    zKey = rhs.zKey;
+    return *this;
+}
+OverlayKey& HoneyCombKey::operator= (const OverlayKey& rhs ) {
+    OverlayKey::operator=(rhs);
+    HoneyCombKey *pRhs = (HoneyCombKey*)(&rhs);
+    if(pRhs) {
+        xKey = pRhs->xKey;
+        yKey = pRhs->yKey;
+        zKey = pRhs->zKey;
+    }
+    return *this;
 }
 
 HoneyCombKey::~HoneyCombKey() {

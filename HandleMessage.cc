@@ -13,12 +13,15 @@
 HandleMessage::HandleMessage(MyOverlay *node) {
     // TODO Auto-generated constructor stub
     this->node = node;
+    stage = STAGE_WAIT_MESSAGE;
 }
 void HandleMessage::handleMessageCall(P2PMessageCall *msgCall) {
+    /*
     if(!node->nodeInfo.hasTheSameKey(msgCall->getDestKey())) {
            routeMsg(msgCall);
            return;
     }
+    */
     if(msgCall->getMsgType() == MSG_JOIN)
         handleJoin(msgCall);
     if(msgCall->getMsgType() == MSG_JOINED)
@@ -58,7 +61,7 @@ void HandleMessage::handleJoin(P2PMessageCall *msgCall) {
         sendKeyReserved(key);
     } else {
         if(!node->nodeInfo.isOnLastChain()) {
-            sendJoinDecline(node->nodeInfo.getExtNeigh()->key);
+            sendJoinDecline(node->nodeInfo.getExtNeigh()->nodeHandle);
         } else {
             std::vector<OverlayInfo *> neighs = node->nodeInfo.getSameChainNeighbours();
             for(unsigned int i = 0; i < neighs.size(); i++)
@@ -76,7 +79,7 @@ void HandleMessage::handleJoined(P2PMessageCall *msgCall) {
     sendMessageAsResponse(msgCall, rsp);
 }
 void HandleMessage::handleJoinDecline(P2PMessageCall *msgCall) {
-    sendJoin(msgCall->getBootstrapKey());
+    sendJoin(msgCall->getBootstrapNode());
 }
 
 void HandleMessage::handleWelcome(P2PMessageCall *msgCall) {
@@ -87,6 +90,7 @@ void HandleMessage::handleJoinAccept(P2PMessageCall *msgCall) {
     node->nodeInfo.nodeColor = msgCall->getNodeColor();
     node->nodeInfo.numRing = msgCall->getNumRing();
     sendDiscoverNeighbours();
+    node->setReady(true);
 }
 
 void HandleMessage::handleKeyReserved(P2PMessageCall *msgCall) {
@@ -108,10 +112,10 @@ void HandleMessage::handleKeyReserved(P2PMessageCall *msgCall) {
 void HandleMessage::handleKeyReservedAck(P2PMessageCall *msgCall) {
     addKeyReservedAck();
     if(allNeighResponded()) {
-        node->nodeInfo.addNewNode(reservedKey);
-        if(allNeighRespondedAck())
+        if(allNeighRespondedAck()) {
             sendJoinAccept();
-        else {
+        }
+       else {
             stage =  STAGE_WAIT_MESSAGE;
             handleJoin(currJoinMessage);
         }
@@ -127,7 +131,6 @@ void HandleMessage::handleUnkownHost(P2PMessageCall *msgCall) {
 void HandleMessage::handleKeyReservedDecline(P2PMessageCall *msgCall) {
     addKeyReservedDecline();
     if(allNeighResponded()) {
-        node->nodeInfo.addNewNode(reservedKey);
         stage =  STAGE_WAIT_MESSAGE;
         handleJoin(currJoinMessage);
     }
@@ -152,7 +155,7 @@ void HandleMessage::handleFindAvaiKey(P2PMessageCall *msgCall) {
 
 void HandleMessage::handleAvaiKey(P2PMessageCall *msgCall) {
     if(stage ==  STAGE_WAIT_FIND_KEY_RPY) {
-        sendJoinDecline(msgCall->getSenderKey());
+        sendJoinDecline(msgCall->getSrcNode());
     }
 }
 
@@ -205,11 +208,11 @@ void HandleMessage::sendKeyReservedAccept(P2PMessageCall *msgCall) {
     sendMessage(msgCall->getSenderKey(), msg);
 }
 
-void HandleMessage::sendJoinDecline(HoneyCombKey neighKey) {
+void HandleMessage::sendJoinDecline(NodeHandle node) {
     P2PMessageCall *msg;
     msg = new P2PMessageCall();
     msg->setMsgType(MSG_JOIN_DECLINE);
-    msg->setBootstrapKey(neighKey);
+    msg->setBootstrapNode(node);
     sendMessageAsResponse(currJoinMessage, msg);
     stage =  STAGE_WAIT_MESSAGE;
     handleNextJoinMessage();
@@ -247,11 +250,11 @@ void HandleMessage::sendAvaiKey(P2PMessageCall *msgCall, HoneyCombKey key) {
     sendMessage(msgCall->getSenderKey(), msg);
 }
 
-void HandleMessage::sendJoin(HoneyCombKey key) {
+void HandleMessage::sendJoin(NodeHandle node) {
     P2PMessageCall *msg;
     msg = new P2PMessageCall();
     msg->setMsgType(MSG_JOIN);
-    sendMessage(key, msg);
+    sendMessage(node, msg);
 }
 
 void HandleMessage::sendDiscoverNeighbours() {
@@ -287,6 +290,10 @@ void HandleMessage::sendMessage(HoneyCombKey dest, P2PMessageCall *msgCall) {
     msgCall->setSenderKey(node->nodeInfo.key);
     node->sendMessage(dest, msgCall);
 }
+void HandleMessage::sendMessage(NodeHandle node, P2PMessageCall *msgCall) {
+    msgCall->setSenderKey(this->node->nodeInfo.key);
+    this->node->sendMessage(node, msgCall);
+}
 
 void HandleMessage::sendMessageAsResponse(P2PMessageCall *origMsg, P2PMessageCall *resp) {
     NodeHandle node = origMsg->getSrcNode();
@@ -305,7 +312,9 @@ NodeHandle* HandleMessage::routeMsg(P2PMessageCall *msgCall) {
     } else {
         addMessageRouted(msgCall);
         OverlayInfo *neighInfo = node->nodeInfo.getNextHop(msgCall->getDestKey());
-        return neighInfo->nodeHandle;
+        NodeHandle *pNode = new NodeHandle();
+        *pNode = neighInfo->nodeHandle;
+        return pNode;
 
     }
 

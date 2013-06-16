@@ -42,7 +42,8 @@
 #define POZ     1
 #define NEG     -1
 
-
+class HandleMessage;
+class OverlayInfo;
 class MyOverlay : public BaseOverlay
 {
 public:
@@ -61,18 +62,8 @@ public:
     int numDropped;          // how many packets have we dropped?
     // routine for RPC timer
     OverlayInfo nodeInfo;
-    /* bootstrapNode */
-    NodeHandle bootstrapNode;
-    int xKey;
-    int yKey;
-    int zKey;
-    int numRing;
-    NodeColor nodeColor;
-
-    NodeHandle xNode;
-    NodeHandle yNode;
-    NodeHandle zNode;
-    HandleMessage messageHandler;
+    HandleMessage *messageHandler;
+    bool ready;
 public:
     void handleTimerEvent(cMessage *msg);
 
@@ -83,7 +74,6 @@ public:
     void finishOverlay();                                   // called when the module is about to be destroyed
 
     /* my functions */
-    void addFirstNode();
     void sendJoinMessage();
     P2PMessageResponse* createJoinResponse(P2PMessageCall *p2pmc);
     // obligatory: called when we need the next hop to route a packet to the given key
@@ -105,6 +95,7 @@ public:
     // obligatory: Set the maximum number of redundant nodes that can be queried about (usually 1)
     int getMaxNumRedundantNodes();
 
+    void setReady(bool value);
     void sendMessage(NodeHandle node, P2PMessageCall *msg);
     void sendMessage(HoneyCombKey key, P2PMessageCall *msg);
     // Our RPC interface
@@ -129,8 +120,8 @@ public:
                              const OverlayKey&);
 
 public:
-    MyOverlay() { rpcTimer = NULL; };
-    ~MyOverlay() { cancelAndDelete(rpcTimer); };
+    MyOverlay();
+    ~MyOverlay();
 };
 
 

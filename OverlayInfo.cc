@@ -258,6 +258,13 @@ void OverlayInfo::addNeigh(HoneyCombKey key, NodeHandle node) {
     if(this->key.isZNeigh(key))
         zNeigh = neigh;
 }
+
+void OverlayInfo::addFirstNode() {
+    key = generateKey(1, 0, 0);
+    this->nodeColor = BLACK_NODE;
+    numRing = 1;
+}
+
 OverlayInfo::~OverlayInfo() {
     // TODO Auto-generated destructor stub
 }

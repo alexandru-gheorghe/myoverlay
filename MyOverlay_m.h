@@ -128,7 +128,7 @@ inline void doUnpacking(cCommBuffer *b, MyNeighborCall& obj) {obj.parsimUnpack(b
  * 	HoneyCombKey senderKey;
  * 	HoneyCombKey destKey;
  * 	HoneyCombKey lastHop;
- * 	HoneyCombKey bootstrapKey;
+ * 	NodeHandle bootstrapNode;
  * 	HoneyCombKey propKey;
  * 	int numRing;
  * };
@@ -144,7 +144,7 @@ class P2PMessageCall : public ::BaseCallMessage
     HoneyCombKey senderKey_var;
     HoneyCombKey destKey_var;
     HoneyCombKey lastHop_var;
-    HoneyCombKey bootstrapKey_var;
+    NodeHandle bootstrapNode_var;
     HoneyCombKey propKey_var;
     int numRing_var;
 
@@ -182,9 +182,9 @@ class P2PMessageCall : public ::BaseCallMessage
     virtual HoneyCombKey& getLastHop();
     virtual const HoneyCombKey& getLastHop() const {return const_cast<P2PMessageCall*>(this)->getLastHop();}
     virtual void setLastHop(const HoneyCombKey& lastHop);
-    virtual HoneyCombKey& getBootstrapKey();
-    virtual const HoneyCombKey& getBootstrapKey() const {return const_cast<P2PMessageCall*>(this)->getBootstrapKey();}
-    virtual void setBootstrapKey(const HoneyCombKey& bootstrapKey);
+    virtual NodeHandle& getBootstrapNode();
+    virtual const NodeHandle& getBootstrapNode() const {return const_cast<P2PMessageCall*>(this)->getBootstrapNode();}
+    virtual void setBootstrapNode(const NodeHandle& bootstrapNode);
     virtual HoneyCombKey& getPropKey();
     virtual const HoneyCombKey& getPropKey() const {return const_cast<P2PMessageCall*>(this)->getPropKey();}
     virtual void setPropKey(const HoneyCombKey& propKey);

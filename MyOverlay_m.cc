@@ -328,7 +328,7 @@ void P2PMessageCall::copy(const P2PMessageCall& other)
     this->senderKey_var = other.senderKey_var;
     this->destKey_var = other.destKey_var;
     this->lastHop_var = other.lastHop_var;
-    this->bootstrapKey_var = other.bootstrapKey_var;
+    this->bootstrapNode_var = other.bootstrapNode_var;
     this->propKey_var = other.propKey_var;
     this->numRing_var = other.numRing_var;
 }
@@ -343,7 +343,7 @@ void P2PMessageCall::parsimPack(cCommBuffer *b)
     doPacking(b,this->senderKey_var);
     doPacking(b,this->destKey_var);
     doPacking(b,this->lastHop_var);
-    doPacking(b,this->bootstrapKey_var);
+    doPacking(b,this->bootstrapNode_var);
     doPacking(b,this->propKey_var);
     doPacking(b,this->numRing_var);
 }
@@ -358,7 +358,7 @@ void P2PMessageCall::parsimUnpack(cCommBuffer *b)
     doUnpacking(b,this->senderKey_var);
     doUnpacking(b,this->destKey_var);
     doUnpacking(b,this->lastHop_var);
-    doUnpacking(b,this->bootstrapKey_var);
+    doUnpacking(b,this->bootstrapNode_var);
     doUnpacking(b,this->propKey_var);
     doUnpacking(b,this->numRing_var);
 }
@@ -433,14 +433,14 @@ void P2PMessageCall::setLastHop(const HoneyCombKey& lastHop)
     this->lastHop_var = lastHop;
 }
 
-HoneyCombKey& P2PMessageCall::getBootstrapKey()
+NodeHandle& P2PMessageCall::getBootstrapNode()
 {
-    return bootstrapKey_var;
+    return bootstrapNode_var;
 }
 
-void P2PMessageCall::setBootstrapKey(const HoneyCombKey& bootstrapKey)
+void P2PMessageCall::setBootstrapNode(const NodeHandle& bootstrapNode)
 {
-    this->bootstrapKey_var = bootstrapKey;
+    this->bootstrapNode_var = bootstrapNode;
 }
 
 HoneyCombKey& P2PMessageCall::getPropKey()
@@ -552,7 +552,7 @@ const char *P2PMessageCallDescriptor::getFieldName(void *object, int field) cons
         "senderKey",
         "destKey",
         "lastHop",
-        "bootstrapKey",
+        "bootstrapNode",
         "propKey",
         "numRing",
     };
@@ -570,7 +570,7 @@ int P2PMessageCallDescriptor::findField(void *object, const char *fieldName) con
     if (fieldName[0]=='s' && strcmp(fieldName, "senderKey")==0) return base+4;
     if (fieldName[0]=='d' && strcmp(fieldName, "destKey")==0) return base+5;
     if (fieldName[0]=='l' && strcmp(fieldName, "lastHop")==0) return base+6;
-    if (fieldName[0]=='b' && strcmp(fieldName, "bootstrapKey")==0) return base+7;
+    if (fieldName[0]=='b' && strcmp(fieldName, "bootstrapNode")==0) return base+7;
     if (fieldName[0]=='p' && strcmp(fieldName, "propKey")==0) return base+8;
     if (fieldName[0]=='n' && strcmp(fieldName, "numRing")==0) return base+9;
     return basedesc ? basedesc->findField(object, fieldName) : -1;
@@ -592,7 +592,7 @@ const char *P2PMessageCallDescriptor::getFieldTypeString(void *object, int field
         "HoneyCombKey",
         "HoneyCombKey",
         "HoneyCombKey",
-        "HoneyCombKey",
+        "NodeHandle",
         "HoneyCombKey",
         "int",
     };
@@ -652,7 +652,7 @@ std::string P2PMessageCallDescriptor::getFieldAsString(void *object, int field, 
         case 4: {std::stringstream out; out << pp->getSenderKey(); return out.str();}
         case 5: {std::stringstream out; out << pp->getDestKey(); return out.str();}
         case 6: {std::stringstream out; out << pp->getLastHop(); return out.str();}
-        case 7: {std::stringstream out; out << pp->getBootstrapKey(); return out.str();}
+        case 7: {std::stringstream out; out << pp->getBootstrapNode(); return out.str();}
         case 8: {std::stringstream out; out << pp->getPropKey(); return out.str();}
         case 9: return long2string(pp->getNumRing());
         default: return "";
@@ -694,7 +694,7 @@ const char *P2PMessageCallDescriptor::getFieldStructName(void *object, int field
         "HoneyCombKey",
         "HoneyCombKey",
         "HoneyCombKey",
-        "HoneyCombKey",
+        "NodeHandle",
         "HoneyCombKey",
         NULL,
     };
@@ -714,7 +714,7 @@ void *P2PMessageCallDescriptor::getFieldStructPointer(void *object, int field, i
         case 4: return (void *)(&pp->getSenderKey()); break;
         case 5: return (void *)(&pp->getDestKey()); break;
         case 6: return (void *)(&pp->getLastHop()); break;
-        case 7: return (void *)(&pp->getBootstrapKey()); break;
+        case 7: return (void *)(&pp->getBootstrapNode()); break;
         case 8: return (void *)(&pp->getPropKey()); break;
         default: return NULL;
     }

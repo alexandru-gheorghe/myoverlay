@@ -58,17 +58,17 @@ public:
     void sendKeyReserved(HoneyCombKey key);
     void sendKeyReservedDecline(P2PMessageCall *msgCall);
     void sendKeyReservedAccept(P2PMessageCall *msgCall);
-    void sendJoinDecline(HoneyCombKey neighKey);
+    void sendJoinDecline(NodeHandle node);
     void sendJoinAccept();
     void sendFindAvaiKey(OverlayInfo *neigh);
     void sendAvaiKey(P2PMessageCall *msgCall, HoneyCombKey key);
-    void sendJoin(HoneyCombKey key);
+    void sendJoin(NodeHandle node);
     void sendDiscoverNeighbours();
     void sendNextChain(HoneyCombKey key);
     void sendAvaiKeyToNextNode(P2PMessageCall *msgCall);
     void sendMessage(HoneyCombKey destKey, P2PMessageCall *msgCall);
     void sendMessageAsResponse(P2PMessageCall *origMsg, P2PMessageCall *resp);
-
+    void sendMessage(NodeHandle node, P2PMessageCall *msgCall);
     NodeHandle* routeMsg(P2PMessageCall *msgCall);
     virtual ~HandleMessage();
 };

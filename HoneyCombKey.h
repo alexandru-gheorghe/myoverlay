@@ -17,6 +17,7 @@ public:
     int zKey;
     HoneyCombKey();
     HoneyCombKey(const unsigned char *buffer, uint32_t size);
+    HoneyCombKey(const HoneyCombKey &oldKey);
     int getMaxKey();
     int getMinKey();
     int getDist();
@@ -27,8 +28,11 @@ public:
     bool isXNeigh(HoneyCombKey key);
     bool isYNeigh(HoneyCombKey key);
     bool isZNeigh(HoneyCombKey key);
+    virtual HoneyCombKey& operator= ( const HoneyCombKey& rhs );
+    virtual OverlayKey& operator= ( const OverlayKey& rhs );
     virtual ~HoneyCombKey();
 };
 
 HoneyCombKey generateKey(int xKey, int yKey, int zKey);
+int parseKey(OverlayKey key, int &x, int &y, int &z);
 #endif /* HONEYCOMBKEY_H_ */
