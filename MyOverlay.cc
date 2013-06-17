@@ -19,7 +19,9 @@
  * @author Antonio Zea
  */
 
+#include <string>
 #include <iostream>
+#include <fstream>
 #include <stdlib.h>
 #include <vector>
 
@@ -68,6 +70,7 @@ void MyOverlay::initializeOverlay(int stage)
 
     rpcTimer = new cMessage("RPC timer");
     scheduleAt(simTime() + 5, rpcTimer);
+
 }
 
 // Called to set our own overlay key (optional)
@@ -166,6 +169,12 @@ NodeVector *MyOverlay::findNode(const OverlayKey& key,
     P2PMessageCall *pMsg = dynamic_cast<P2PMessageCall*>(msg);
     int x, y, z;
     parseKey(key, x, y, z);
+    std::string keyString = key.toString(16);
+    char keyChar[100];
+    for(int i = 0; i < keyString.size(); i++)
+        keyChar[i] = keyString[i];
+
+
     /*
     if(pMsg == NULL) {
         return NULL;

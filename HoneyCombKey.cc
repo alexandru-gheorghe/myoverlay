@@ -8,6 +8,8 @@
 #include "HoneyCombKey.h"
 #include "OverlayKey.h"
 #include <iostream>
+#include <iomanip>
+#include <fstream>
 #include <stdlib.h>
 #include <vector>
 
@@ -32,6 +34,10 @@ HoneyCombKey::HoneyCombKey(const HoneyCombKey &oldKey):OverlayKey(oldKey) {
     xKey = oldKey.xKey;
     yKey = oldKey.yKey;
     zKey = oldKey.zKey;
+}
+
+HoneyCombKey::HoneyCombKey( const std::string& str, uint32_t base ):OverlayKey(str, base) {
+
 }
 int HoneyCombKey::getMaxKey() {
     if(xKey >= yKey && xKey >= zKey)
@@ -91,9 +97,10 @@ bool HoneyCombKey::isInteriorToChain(int numRing) {
 HoneyCombKey generateKey(int xKey, int yKey, int zKey) {
     unsigned char *buffer;
     buffer = (unsigned char *)malloc(KEY_LENGTH * sizeof(char));
-    memcpy(buffer, &xKey, sizeof(int));
-    memcpy(buffer + sizeof(int), &yKey, sizeof(int));
-    memcpy(buffer + 2 * sizeof(int), &zKey, sizeof(int));
+    memcpy(buffer, &xKey, sizeof(int) / 2);
+    memcpy(buffer + sizeof(int) / 2, &yKey, sizeof(int) / 2);
+    memcpy(buffer + 2 * sizeof(int) / 2, &zKey, sizeof(int) / 2);
+
     HoneyCombKey hck = HoneyCombKey(buffer, KEY_LENGTH);
     hck.xKey = xKey;
     hck.yKey = yKey;

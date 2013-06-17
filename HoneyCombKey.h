@@ -18,6 +18,7 @@ public:
     HoneyCombKey();
     HoneyCombKey(const unsigned char *buffer, uint32_t size);
     HoneyCombKey(const HoneyCombKey &oldKey);
+    HoneyCombKey( const std::string& str, uint32_t base);
     int getMaxKey();
     int getMinKey();
     int getDist();
